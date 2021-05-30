@@ -9,17 +9,24 @@
 #include <GLFW/glfw3.h>
 
 // Ooooh Data
-#define NUM_DIMENSIONS 2
 #define NUM_VERTICES 3
-const float geometry[NUM_VERTICES * NUM_DIMENSIONS] = {
+#define NUM_POSITION_DIMENSIONS 2
+const float geometry[NUM_VERTICES * NUM_POSITION_DIMENSIONS] = {
 	-0.5f, -0.5f,
 	0.0, 0.5,
 	0.5, -0.5
 };
+#define NUM_COLOR_DIMENSIONS 3
+const float color[NUM_VERTICES * NUM_COLOR_DIMENSIONS] = {
+	0.0, 0.0, 1.0,
+	1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0,
+};
 
 // Resources
 GLFWwindow* window;
-GLuint gVertexBuffer;
+GLuint gPositionBuffer;
+GLuint gColorBuffer;
 GLuint shaderVertex;
 GLuint shaderFragment;
 GLuint shaderProgram;
@@ -111,7 +118,7 @@ void compileShader()
 		glDeleteShader(shaderVertex);
 		exit(EXIT_FAILURE);
 	}
-	else 
+	else
 	{
 		std::cout << "Vertex shader compiled successfully!" << std::endl;
 	}
@@ -173,13 +180,16 @@ void compileShader()
 
 void setupBuffers()
 {
-	glGenBuffers(1, &gVertexBuffer);
+	glGenBuffers(1, &gPositionBuffer);
+	glGenBuffers(1, &gColorBuffer);
 }
 
 void useObject()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, gVertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
 	glUseProgram(shaderProgram);
 }
 
@@ -187,9 +197,12 @@ void renderStep()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
-	glBindBuffer(GL_ARRAY_BUFFER, gVertexBuffer);
-	glVertexAttribPointer(0, NUM_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer);
+	glVertexAttribPointer(0, NUM_POSITION_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
+	glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
 	glDrawArrays(GL_TRIANGLES, 0, NUM_VERTICES);
 	glFlush();
 }
