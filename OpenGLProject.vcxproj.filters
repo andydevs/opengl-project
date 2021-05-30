@@ -21,5 +21,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shader.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
