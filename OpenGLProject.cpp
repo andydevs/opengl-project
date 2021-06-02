@@ -84,104 +84,83 @@ void setupOpenGL()
 		<< std::endl;
 }
 
-void compileShader() 
+GLint compileShader(const char* sourceFileName, GLenum shaderType)
 {
-	// Other things
+	// Parameters n soch
+	const int MAX_LEN = 2048;
+	const GLchar* source;
+	GLint shaderHandle;
 	GLint isGood;
 	GLint maxlen;
-#define MAX_LEN 2048
 	char str[MAX_LEN];
-	const GLchar* vertSource;
-	const GLchar* fragSource;
 
-	// Compile vertex shader
-	std::ifstream vertSourceFile("shader.vert");
-	std::stringstream vertSourceBuff;
-	while (vertSourceFile.good()) {
-		vertSourceFile.getline(str, MAX_LEN);
-		vertSourceBuff << str << std::endl;
+	// Read file contents
+	std::ifstream sourceFile(sourceFileName);
+	std::stringstream sourceBuff;
+	while (sourceFile.good()) {
+		sourceFile.getline(str, MAX_LEN);
+		sourceBuff << str << std::endl;
 	}
-	vertSourceFile.close();
-	shaderVertex = glCreateShader(GL_VERTEX_SHADER);
-	vertSource = _strdup(vertSourceBuff.str().c_str());
-	glShaderSource(shaderVertex, 1, &vertSource, 0);
-	glCompileShader(shaderVertex);
-	glGetShaderiv(shaderVertex, GL_COMPILE_STATUS, &isGood);
+	sourceFile.close();
+	source = _strdup(sourceBuff.str().c_str());
+
+	// Compile shader
+	shaderHandle = glCreateShader(shaderType);
+	glShaderSource(shaderHandle, 1, &source, 0);
+	glCompileShader(shaderHandle);
+
+	// Check errors
+	glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &isGood);
 	if (isGood == GL_FALSE)
 	{
-		std::cout << "Error compiling vertex shader: ";
-		glGetShaderiv(shaderVertex, GL_INFO_LOG_LENGTH, &maxlen);
+		std::cout << "Error compiling shader " << sourceFileName << std::endl;
+		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &maxlen);
 		std::vector<GLchar> infolog(maxlen);
-		glGetShaderInfoLog(shaderVertex, maxlen, &maxlen, &infolog[0]);
+		glGetShaderInfoLog(shaderHandle, maxlen, &maxlen, &infolog[0]);
 		std::string infologstr(infolog.begin(), infolog.end());
 		std::cout << infologstr << std::endl;
-		glDeleteShader(shaderVertex);
-		exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE); // TODO: DONT DO THIS HORRIBLE THING
 	}
-	else
+	else 
 	{
-		std::cout << "Vertex shader compiled successfully!" << std::endl;
+		std::cout << "Successfuly compiled shader " << sourceFileName << std::endl;
 	}
 
-	// Compile fragment shader
-	std::ifstream fragSourceFile("shader.frag");
-	std::stringstream fragSourceBuff;
-	while (fragSourceFile.good()) {
-		fragSourceFile.getline(str, MAX_LEN);
-		fragSourceBuff << str << std::endl;
-	}
-	fragSourceFile.close();
-	shaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
-	fragSource = _strdup(fragSourceBuff.str().c_str());
-	glShaderSource(shaderFragment, 1, &fragSource, 0);
-	glCompileShader(shaderFragment);
-	glGetShaderiv(shaderFragment, GL_COMPILE_STATUS, &isGood);
-	if (isGood == GL_FALSE)
-	{
-		std::cout << "Error compiling fragment shader: ";
-		glGetShaderiv(shaderFragment, GL_INFO_LOG_LENGTH, &maxlen);
-		std::vector<GLchar> infolog(maxlen);
-		glGetShaderInfoLog(shaderFragment, maxlen, &maxlen, &infolog[0]);
-		std::string infologstr(infolog.begin(), infolog.end());
-		std::cout << infologstr << std::endl;
-		glDeleteShader(shaderFragment);
-		glDeleteShader(shaderVertex);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		std::cout << "Fragment shader compiled successfully!" << std::endl;
-	}
+	// Return compiled shader handle
+	return shaderHandle;
+}
+
+GLint linkShaderProgram(GLint shaderVertex, GLint shaderFragment) 
+{
+	// Buffers n shoch
+	GLint isGood;
+	GLint maxlen;
 	
-	// Create program
-	shaderProgram = glCreateProgram();
+	// Create program and attach shaders and link
+	GLint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, shaderVertex);
 	glAttachShader(shaderProgram, shaderFragment);
 	glLinkProgram(shaderProgram);
+
+	// Handle errors
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &isGood);
 	if (isGood == GL_FALSE)
 	{
 		std::cout << "Error compiling fragment shader: ";
-		glGetProgramiv(shaderFragment, GL_INFO_LOG_LENGTH, &maxlen);
+		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &maxlen);
 		std::vector<GLchar> infolog(maxlen);
-		glGetProgramInfoLog(shaderFragment, maxlen, &maxlen, &infolog[0]);
+		glGetProgramInfoLog(shaderProgram, maxlen, &maxlen, &infolog[0]);
 		std::string infologstr(infolog.begin(), infolog.end());
 		std::cout << infologstr << std::endl;
-		glDeleteProgram(shaderProgram);
-		glDeleteShader(shaderFragment);
-		glDeleteShader(shaderVertex);
-		exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE); // TODO: IT AINT COOL HERE EITHER
 	}
 	else
 	{
 		std::cout << "Shader program linked successfully!" << std::endl;
 	}
-}
 
-void setupBuffers()
-{
-	glGenBuffers(1, &gPositionBuffer);
-	glGenBuffers(1, &gColorBuffer);
+	// Return shader program
+	return shaderProgram;
 }
 
 void useObject()
@@ -209,10 +188,17 @@ void renderStep()
 
 int main() 
 {
-	// Setup opengl and compile shaders
+	// Setup opengl
 	setupOpenGL();
-	compileShader();
-	setupBuffers();
+
+	// Compile and link shader program
+	shaderVertex = compileShader("shader.vert", GL_VERTEX_SHADER);
+	shaderFragment = compileShader("shader.frag", GL_FRAGMENT_SHADER);
+	shaderProgram = linkShaderProgram(shaderVertex, shaderFragment);
+
+	// Set up opengl buffers
+	glGenBuffers(1, &gPositionBuffer);
+	glGenBuffers(1, &gColorBuffer);
 
 	// Set object
 	useObject();
