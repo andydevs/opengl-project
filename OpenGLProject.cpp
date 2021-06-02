@@ -9,24 +9,33 @@
 #include <GLFW/glfw3.h>
 
 // Ooooh Data
-#define NUM_VERTICES 3
+#define NUM_VERTICES 4
 #define NUM_POSITION_DIMENSIONS 2
 const float geometry[NUM_VERTICES * NUM_POSITION_DIMENSIONS] = {
 	-0.5f, -0.5f,
-	0.0, 0.5,
-	0.5, -0.5
+	-0.5f,  0.5f,
+	 0.5f,  0.5f,
+	 0.5f, -0.5f
 };
 #define NUM_COLOR_DIMENSIONS 3
 const float color[NUM_VERTICES * NUM_COLOR_DIMENSIONS] = {
 	0.0, 0.0, 1.0,
 	1.0, 0.0, 0.0,
 	0.0, 0.0, 1.0,
+	1.0, 0.0, 0.0
+};
+#define NUM_TRIANGLES 2
+#define VERT_PER_TRIANGLE 3
+const unsigned indices[NUM_TRIANGLES * VERT_PER_TRIANGLE] = {
+	0, 1, 2,
+	0, 2, 3
 };
 
 // Resources
 GLFWwindow* window;
 GLuint gPositionBuffer;
 GLuint gColorBuffer;
+GLuint gIndexBuffer;
 GLuint shaderVertex;
 GLuint shaderFragment;
 GLuint shaderProgram;
@@ -169,6 +178,8 @@ void useObject()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glUseProgram(shaderProgram);
 }
 
@@ -182,7 +193,8 @@ void renderStep()
 	glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
 	glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
-	glDrawArrays(GL_TRIANGLES, 0, NUM_VERTICES);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+	glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices);
 	glFlush();
 }
 
