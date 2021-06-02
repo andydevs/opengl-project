@@ -102,21 +102,6 @@ void useObject()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
-void renderStep()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0, 1.0, 1.0);
-	glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer);
-	glVertexAttribPointer(0, NUM_POSITION_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
-	glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
-	glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices);
-	glFlush();
-}
-
 int main() 
 {
 	// Setup opengl
@@ -144,7 +129,17 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// Render step
-		renderStep();
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer);
+		glVertexAttribPointer(0, NUM_POSITION_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
+		glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+		glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices);
+		glFlush();
 
 		// Update glfw
 		glfwSwapBuffers(window);
