@@ -7,6 +7,7 @@
 #include <cstring>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "ShaderProgram.h"
 
 // Ooooh Data
 #define NUM_VERTICES 4
@@ -33,12 +34,13 @@ const unsigned indices[NUM_TRIANGLES * VERT_PER_TRIANGLE] = {
 
 // Resources
 GLFWwindow* window;
+Shader* vertexShader;
+Shader* fragmentShader;
+ShaderProgram* shaderProgram;
 GLuint gPositionBuffer;
 GLuint gColorBuffer;
 GLuint gIndexBuffer;
-GLuint shaderVertex;
-GLuint shaderFragment;
-GLuint shaderProgram;
+
 
 void setupOpenGL()
 {
@@ -59,10 +61,7 @@ void setupOpenGL()
 
 	// Create window
 	// Again, exit if didn't work
-	window = glfwCreateWindow(
-		640, 480, 
-		"OpenGL Test", 
-		nullptr, nullptr);
+	window = glfwCreateWindow(1280, 720, "OpenGL Test", nullptr, nullptr);
 	if (!window)
 	{
 		std::cout 
@@ -93,85 +92,6 @@ void setupOpenGL()
 		<< std::endl;
 }
 
-GLint compileShader(const char* sourceFileName, GLenum shaderType)
-{
-	// Parameters n soch
-	const int MAX_LEN = 2048;
-	const GLchar* source;
-	GLint shaderHandle;
-	GLint isGood;
-	GLint maxlen;
-	char str[MAX_LEN];
-
-	// Read file contents
-	std::ifstream sourceFile(sourceFileName);
-	std::stringstream sourceBuff;
-	while (sourceFile.good()) {
-		sourceFile.getline(str, MAX_LEN);
-		sourceBuff << str << std::endl;
-	}
-	sourceFile.close();
-	source = _strdup(sourceBuff.str().c_str());
-
-	// Compile shader
-	shaderHandle = glCreateShader(shaderType);
-	glShaderSource(shaderHandle, 1, &source, 0);
-	glCompileShader(shaderHandle);
-
-	// Check errors
-	glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &isGood);
-	if (isGood == GL_FALSE)
-	{
-		std::cout << "Error compiling shader " << sourceFileName << std::endl;
-		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &maxlen);
-		std::vector<GLchar> infolog(maxlen);
-		glGetShaderInfoLog(shaderHandle, maxlen, &maxlen, &infolog[0]);
-		std::string infologstr(infolog.begin(), infolog.end());
-		std::cout << infologstr << std::endl;
-		exit(EXIT_FAILURE); // TODO: DONT DO THIS HORRIBLE THING
-	}
-	else 
-	{
-		std::cout << "Successfuly compiled shader " << sourceFileName << std::endl;
-	}
-
-	// Return compiled shader handle
-	return shaderHandle;
-}
-
-GLint linkShaderProgram(GLint shaderVertex, GLint shaderFragment) 
-{
-	// Buffers n shoch
-	GLint isGood;
-	GLint maxlen;
-	
-	// Create program and attach shaders and link
-	GLint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, shaderVertex);
-	glAttachShader(shaderProgram, shaderFragment);
-	glLinkProgram(shaderProgram);
-
-	// Handle errors
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &isGood);
-	if (isGood == GL_FALSE)
-	{
-		std::cout << "Error compiling fragment shader: ";
-		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &maxlen);
-		std::vector<GLchar> infolog(maxlen);
-		glGetProgramInfoLog(shaderProgram, maxlen, &maxlen, &infolog[0]);
-		std::string infologstr(infolog.begin(), infolog.end());
-		std::cout << infologstr << std::endl;
-		exit(EXIT_FAILURE); // TODO: IT AINT COOL HERE EITHER
-	}
-	else
-	{
-		std::cout << "Shader program linked successfully!" << std::endl;
-	}
-
-	// Return shader program
-	return shaderProgram;
-}
-
 void useObject()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer);
@@ -180,7 +100,6 @@ void useObject()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glUseProgram(shaderProgram);
 }
 
 void renderStep()
@@ -204,15 +123,21 @@ int main()
 	setupOpenGL();
 
 	// Compile and link shader program
-	shaderVertex = compileShader("shader.vert", GL_VERTEX_SHADER);
-	shaderFragment = compileShader("shader.frag", GL_FRAGMENT_SHADER);
-	shaderProgram = linkShaderProgram(shaderVertex, shaderFragment);
+	vertexShader = new Shader(GL_VERTEX_SHADER, "shader.vert");
+	vertexShader->compile();
+	fragmentShader = new Shader(GL_FRAGMENT_SHADER, "shader.frag");
+	fragmentShader->compile();
+	shaderProgram = new ShaderProgram();
+	shaderProgram->vertexShader(vertexShader);
+	shaderProgram->fragmentShader(fragmentShader);
+	shaderProgram->link();
 
 	// Set up opengl buffers
 	glGenBuffers(1, &gPositionBuffer);
 	glGenBuffers(1, &gColorBuffer);
 
-	// Set object
+	// Set object and shader
+	shaderProgram->bind();
 	useObject();
 
 	// Set up the whole loop thing
@@ -227,12 +152,12 @@ int main()
 	}
 
 	// Teardown stuff
-	glDeleteProgram(shaderProgram);
-	glDeleteShader(shaderFragment);
-	glDeleteShader(shaderVertex);
+	delete shaderProgram;
+	delete fragmentShader;
+	delete vertexShader;
+	glfwDestroyWindow(window);
 
 	// Exit
-	glfwDestroyWindow(window);
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }
