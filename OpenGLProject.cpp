@@ -91,14 +91,22 @@ ShaderProgram* shaderProgram;
 GLuint gPositionBuffer;
 GLuint gColorBuffer;
 GLuint gNormalBuffer;
+
+// Uniforms
 GLuint uMatrixTransform;
 GLuint uMatrixCamera;
 GLuint uMatrixProjection;
+GLuint uVectorAmbientLight;
+GLuint uVectorDirectionalLightColor;
+GLuint uVectorDirectionalLightVector;
 
 // Transform and projection matrices
 glm::mat4 transform;
 glm::mat4 camera;
 glm::mat4 projection;
+glm::vec3 ambientLight;
+glm::vec3 directionalLightColor;
+glm::vec3 directionalLightVector;
 
 void setupOpenGL()
 {
@@ -178,9 +186,12 @@ int main()
 
 	// Set object and shader
 	shaderProgram->bind();
-	GL_SAFE_CALL(uMatrixTransform  = glGetUniformLocation(shaderProgram->handle(), "transform"));
-	GL_SAFE_CALL(uMatrixCamera     = glGetUniformLocation(shaderProgram->handle(), "camera"));
-	GL_SAFE_CALL(uMatrixProjection = glGetUniformLocation(shaderProgram->handle(), "projection"));
+	GL_SAFE_CALL(uMatrixTransform              = glGetUniformLocation(shaderProgram->handle(), "transform"));
+	GL_SAFE_CALL(uMatrixCamera                 = glGetUniformLocation(shaderProgram->handle(), "camera"));
+	GL_SAFE_CALL(uMatrixProjection             = glGetUniformLocation(shaderProgram->handle(), "projection"));
+	GL_SAFE_CALL(uVectorAmbientLight           = glGetUniformLocation(shaderProgram->handle(), "ambientLight"));
+	GL_SAFE_CALL(uVectorDirectionalLightColor  = glGetUniformLocation(shaderProgram->handle(), "directionalLightColor"));
+	GL_SAFE_CALL(uVectorDirectionalLightVector = glGetUniformLocation(shaderProgram->handle(), "directionalLightVector"));
 
 	// Set up the whole loop thing
 	float time = 0.0f;
@@ -194,6 +205,11 @@ int main()
 		camera     = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 10.0f);
 
+		// Lighting
+		ambientLight = glm::vec3(0.2, 0.2, 0.2);
+		directionalLightColor = glm::vec3(sinf(time) + 0.5, sinf(time + 1.5) + 0.5, sinf(time + 4.1) + 0.5);
+		directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
+		
 		// Render step
 		GL_SAFE_CALL(glEnable(GL_DEPTH_TEST));
 		GL_SAFE_CALL(glDepthFunc(GL_LESS));
@@ -211,6 +227,9 @@ int main()
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixCamera, 1, GL_FALSE, glm::value_ptr(camera)));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixProjection, 1, GL_FALSE, glm::value_ptr(projection)));
+		GL_SAFE_CALL(glUniform3fv(uVectorAmbientLight, 1, glm::value_ptr(ambientLight)));
+		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightColor, 1, glm::value_ptr(directionalLightColor)));
+		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightVector, 1, glm::value_ptr(directionalLightVector)));
 		GL_SAFE_CALL(glDrawElements(GL_TRIANGLES, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));
 		GL_SAFE_CALL(glFlush());
 

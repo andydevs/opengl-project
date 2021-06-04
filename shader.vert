@@ -9,6 +9,9 @@ layout (location = 2) in vec3 aNormal;
 uniform mat4 transform;
 uniform mat4 camera;
 uniform mat4 projection;
+uniform vec3 ambientLight;
+uniform vec3 directionalLightColor;
+uniform vec3 directionalLightVector;
 
 // Outputs
 out vec3 theColor;
@@ -21,11 +24,8 @@ void main()
 	mat3 normalMat = mat3(transpose(inverse(modelView)));
 
 	// Lighting
-	vec3 ambientLight = vec3(0.2, 0.2, 0.2);
-    vec3 directionalLightColor = vec3(1, 1, 1);
-    vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
 	vec3 transNormal = normalMat * aNormal;
-	float directionalValue = max(dot(transNormal, directionalVector), 0.0);
+	float directionalValue = max(dot(transNormal, directionalLightVector), 0.0);
 	vec3 directionalLight = directionalLightColor * directionalValue;
 
 	// Outputs
