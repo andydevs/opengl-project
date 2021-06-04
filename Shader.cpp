@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include "Debug.h"
 
 Shader::Shader(GLenum shaderType, const char* shaderFilename)
 	: m_shaderType(shaderType),
@@ -25,7 +26,9 @@ Shader::Shader(GLenum shaderType, const char* shaderFilename)
 
 Shader::~Shader()
 {
-	if (m_shaderHandle) glDeleteShader(m_shaderHandle);
+	if (m_shaderHandle) {
+		GL_SAFE_CALL(glDeleteShader(m_shaderHandle));
+	}
 	delete m_shaderSource;
 	delete m_shaderFilename;
 }
@@ -37,21 +40,21 @@ void Shader::compile()
 	GLint maxlen;
 
 	// Compile shader
-	m_shaderHandle = glCreateShader(m_shaderType);
-	glShaderSource(m_shaderHandle, 1, &m_shaderSource, 0);
-	glCompileShader(m_shaderHandle);
+	GL_SAFE_CALL(m_shaderHandle = glCreateShader(m_shaderType));
+	GL_SAFE_CALL(glShaderSource(m_shaderHandle, 1, &m_shaderSource, 0));
+	GL_SAFE_CALL(glCompileShader(m_shaderHandle));
 
 	// Check errors
-	glGetShaderiv(m_shaderHandle, GL_COMPILE_STATUS, &isGood);
+	GL_SAFE_CALL(glGetShaderiv(m_shaderHandle, GL_COMPILE_STATUS, &isGood));
 	if (isGood == GL_FALSE)
 	{
 		std::cout << "Error compiling shader " << m_shaderFilename << std::endl;
-		glGetShaderiv(m_shaderHandle, GL_INFO_LOG_LENGTH, &maxlen);
+		GL_SAFE_CALL(glGetShaderiv(m_shaderHandle, GL_INFO_LOG_LENGTH, &maxlen));
 		std::vector<GLchar> infolog(maxlen);
-		glGetShaderInfoLog(m_shaderHandle, maxlen, &maxlen, &infolog[0]);
+		GL_SAFE_CALL(glGetShaderInfoLog(m_shaderHandle, maxlen, &maxlen, &infolog[0]));
 		std::string infologstr(infolog.begin(), infolog.end());
 		std::cout << infologstr << std::endl;
-		exit(EXIT_FAILURE); // TODO: DONT DO THIS HORRIBLE THING
+		__debugbreak();
 	}
 	else
 	{

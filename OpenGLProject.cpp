@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "ShaderProgram.h"
+#include "Debug.h"
 
 // Ooooh Data
 #define NUM_VERTICES 4
@@ -37,9 +38,10 @@ GLFWwindow* window;
 Shader* vertexShader;
 Shader* fragmentShader;
 ShaderProgram* shaderProgram;
+
+// Shader buffers
 GLuint gPositionBuffer;
 GLuint gColorBuffer;
-GLuint gIndexBuffer;
 
 
 void setupOpenGL()
@@ -94,12 +96,10 @@ void setupOpenGL()
 
 void useObject()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer));
+	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW));
+	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer));
+	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
 }
 
 int main() 
@@ -118,8 +118,8 @@ int main()
 	shaderProgram->link();
 
 	// Set up opengl buffers
-	glGenBuffers(1, &gPositionBuffer);
-	glGenBuffers(1, &gColorBuffer);
+	GL_SAFE_CALL(glGenBuffers(1, &gPositionBuffer));
+	GL_SAFE_CALL(glGenBuffers(1, &gColorBuffer));
 
 	// Set object and shader
 	shaderProgram->bind();
@@ -129,17 +129,16 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// Render step
-		glClearColor(0.0, 0.0, 0.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer);
-		glVertexAttribPointer(0, NUM_POSITION_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
-		glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
-		glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices);
-		glFlush();
+		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
+		GL_SAFE_CALL(glClear(GL_COLOR_BUFFER_BIT));
+		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer));
+		GL_SAFE_CALL(glVertexAttribPointer(0, NUM_POSITION_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
+		GL_SAFE_CALL(glEnableVertexAttribArray(0));
+		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer));
+		GL_SAFE_CALL(glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
+		GL_SAFE_CALL(glEnableVertexAttribArray(1));
+		GL_SAFE_CALL(glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));
+		GL_SAFE_CALL(glFlush());
 
 		// Update glfw
 		glfwSwapBuffers(window);

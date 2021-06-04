@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include "Debug.h"
 
 ShaderProgram::ShaderProgram(): 
 	m_vertexShader(nullptr),
@@ -13,7 +14,9 @@ ShaderProgram::ShaderProgram():
 ShaderProgram::~ShaderProgram()
 {
 	// Delete handle if exist
-	if (m_shaderProgram) glDeleteProgram(m_shaderProgram);
+	if (m_shaderProgram) {
+		GL_SAFE_CALL(glDeleteProgram(m_shaderProgram))
+	}
 }
 
 void ShaderProgram::vertexShader(Shader* vs)
@@ -35,22 +38,22 @@ void ShaderProgram::link()
 		GLint maxlen;
 
 		// Create program and attach shaders and link
-		m_shaderProgram = glCreateProgram();
-		glAttachShader(m_shaderProgram, m_vertexShader->handle());
-		glAttachShader(m_shaderProgram, m_fragmentShader->handle());
-		glLinkProgram(m_shaderProgram);
+		GL_SAFE_CALL(m_shaderProgram = glCreateProgram());
+		GL_SAFE_CALL(glAttachShader(m_shaderProgram, m_vertexShader->handle()));
+		GL_SAFE_CALL(glAttachShader(m_shaderProgram, m_fragmentShader->handle()));
+		GL_SAFE_CALL(glLinkProgram(m_shaderProgram));
 
 		// Handle errors
-		glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &isGood);
+		GL_SAFE_CALL(glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &isGood));
 		if (isGood == GL_FALSE)
 		{
 			std::cout << "Error linking shader program: " << std::endl;
-			glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &maxlen);
+			GL_SAFE_CALL(glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &maxlen));
 			std::vector<GLchar> infolog(maxlen);
-			glGetProgramInfoLog(m_shaderProgram, maxlen, &maxlen, &infolog[0]);
+			GL_SAFE_CALL(glGetProgramInfoLog(m_shaderProgram, maxlen, &maxlen, &infolog[0]));
 			std::string infologstr(infolog.begin(), infolog.end());
 			std::cout << infologstr << std::endl;
-			exit(EXIT_FAILURE); // TODO: IT AINT COOL HERE EITHER
+			__debugbreak();
 		}
 		else
 		{
@@ -61,5 +64,5 @@ void ShaderProgram::link()
 
 void ShaderProgram::bind()
 {
-	glUseProgram(m_shaderProgram);
+	GL_SAFE_CALL(glUseProgram(m_shaderProgram));
 }
