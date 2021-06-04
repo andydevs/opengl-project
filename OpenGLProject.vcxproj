@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GLObject.cpp" />
     <ClCompile Include="OpenGLProject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -154,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="GLObject.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
   </ItemGroup>

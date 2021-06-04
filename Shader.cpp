@@ -7,9 +7,9 @@
 #include "Debug.h"
 
 Shader::Shader(GLenum shaderType, const char* shaderFilename)
-	: m_shaderType(shaderType),
-	m_shaderFilename(_strdup(shaderFilename)),
-	m_shaderHandle(0)
+	: GLObject(),
+	m_shaderType(shaderType),
+	m_shaderFilename(_strdup(shaderFilename))
 {	
 	// Read file contents
 	const int MAX_LEN = 2048;
@@ -26,8 +26,8 @@ Shader::Shader(GLenum shaderType, const char* shaderFilename)
 
 Shader::~Shader()
 {
-	if (m_shaderHandle) {
-		GL_SAFE_CALL(glDeleteShader(m_shaderHandle));
+	if (m_handle) {
+		GL_SAFE_CALL(glDeleteShader(m_handle));
 	}
 	delete m_shaderSource;
 	delete m_shaderFilename;
@@ -40,18 +40,18 @@ void Shader::compile()
 	GLint maxlen;
 
 	// Compile shader
-	GL_SAFE_CALL(m_shaderHandle = glCreateShader(m_shaderType));
-	GL_SAFE_CALL(glShaderSource(m_shaderHandle, 1, &m_shaderSource, 0));
-	GL_SAFE_CALL(glCompileShader(m_shaderHandle));
+	GL_SAFE_CALL(m_handle = glCreateShader(m_shaderType));
+	GL_SAFE_CALL(glShaderSource(m_handle, 1, &m_shaderSource, 0));
+	GL_SAFE_CALL(glCompileShader(m_handle));
 
 	// Check errors
-	GL_SAFE_CALL(glGetShaderiv(m_shaderHandle, GL_COMPILE_STATUS, &isGood));
+	GL_SAFE_CALL(glGetShaderiv(m_handle, GL_COMPILE_STATUS, &isGood));
 	if (isGood == GL_FALSE)
 	{
 		std::cout << "Error compiling shader " << m_shaderFilename << std::endl;
-		GL_SAFE_CALL(glGetShaderiv(m_shaderHandle, GL_INFO_LOG_LENGTH, &maxlen));
+		GL_SAFE_CALL(glGetShaderiv(m_handle, GL_INFO_LOG_LENGTH, &maxlen));
 		std::vector<GLchar> infolog(maxlen);
-		GL_SAFE_CALL(glGetShaderInfoLog(m_shaderHandle, maxlen, &maxlen, &infolog[0]));
+		GL_SAFE_CALL(glGetShaderInfoLog(m_handle, maxlen, &maxlen, &infolog[0]));
 		std::string infologstr(infolog.begin(), infolog.end());
 		std::cout << infologstr << std::endl;
 		__debugbreak();
@@ -60,9 +60,4 @@ void Shader::compile()
 	{
 		std::cout << "Successfuly compiled shader " << m_shaderFilename << std::endl;
 	}
-}
-
-GLint Shader::handle()
-{
-	return m_shaderHandle;
 }

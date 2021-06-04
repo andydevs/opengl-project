@@ -2,12 +2,11 @@
 #include <GL/GLEW.h>
 #include "Shader.h"
 
-class ShaderProgram
+class ShaderProgram : public GLObject
 {
 private:
 	Shader* m_vertexShader;
 	Shader* m_fragmentShader;
-	GLuint m_shaderProgram;
 public:
 	ShaderProgram();
 	~ShaderProgram();
@@ -15,6 +14,5 @@ public:
 	void fragmentShader(Shader* fs);
 	void link();
 	void bind();
-	GLuint handle();
 	GLuint uniformHandle(const char* name);
 };

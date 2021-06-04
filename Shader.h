@@ -1,18 +1,17 @@
 #pragma once
+#include "GLObject.h"
 #include <GL/glew.h>
 
 
-class Shader
+class Shader : public GLObject
 {
 private:
 	GLenum m_shaderType;
 	const char* m_shaderFilename;
 	const char* m_shaderSource;
-	GLint m_shaderHandle;
 public:
 	Shader(GLenum shaderType, const char* shaderFilename);
 	~Shader();
 	void compile();
-	GLint handle();
 };
 
