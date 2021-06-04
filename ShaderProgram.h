@@ -16,4 +16,5 @@ public:
 	void link();
 	void bind();
 	GLuint handle();
+	GLuint uniformHandle(const char* name);
 };

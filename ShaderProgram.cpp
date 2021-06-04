@@ -71,3 +71,10 @@ GLuint ShaderProgram::handle()
 {
 	return m_shaderProgram;
 }
+
+GLuint ShaderProgram::uniformHandle(const char* name)
+{
+	GLuint uniformHandle;
+	GL_SAFE_CALL(uniformHandle = glGetUniformLocation(m_shaderProgram, name));
+	return uniformHandle;
+}

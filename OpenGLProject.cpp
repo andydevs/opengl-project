@@ -184,14 +184,14 @@ int main()
 	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer));
 	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(normal), normal, GL_STATIC_DRAW));
 
-	// Set object and shader
+	// Set shader and get uniform location
 	shaderProgram->bind();
-	GL_SAFE_CALL(uMatrixTransform              = glGetUniformLocation(shaderProgram->handle(), "transform"));
-	GL_SAFE_CALL(uMatrixCamera                 = glGetUniformLocation(shaderProgram->handle(), "camera"));
-	GL_SAFE_CALL(uMatrixProjection             = glGetUniformLocation(shaderProgram->handle(), "projection"));
-	GL_SAFE_CALL(uVectorAmbientLight           = glGetUniformLocation(shaderProgram->handle(), "ambientLight"));
-	GL_SAFE_CALL(uVectorDirectionalLightColor  = glGetUniformLocation(shaderProgram->handle(), "directionalLightColor"));
-	GL_SAFE_CALL(uVectorDirectionalLightVector = glGetUniformLocation(shaderProgram->handle(), "directionalLightVector"));
+	uMatrixTransform              = shaderProgram->uniformHandle("transform");
+	uMatrixCamera                 = shaderProgram->uniformHandle("camera");
+	uMatrixProjection             = shaderProgram->uniformHandle("projection");
+	uVectorAmbientLight           = shaderProgram->uniformHandle("ambientLight");
+	uVectorDirectionalLightColor  = shaderProgram->uniformHandle("directionalLightColor");
+	uVectorDirectionalLightVector = shaderProgram->uniformHandle("directionalLightVector");
 
 	// Set up the whole loop thing
 	float time = 0.0f;
