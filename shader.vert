@@ -6,12 +6,13 @@ layout (location = 1) in vec3 aColor;
 
 // Uniforms
 uniform mat4 transform;
+uniform mat4 projection;
 
 // Outputs
 out vec3 theColor;
 
 void main()
 {
-	gl_Position = transform * vec4(aPosition, 1.0);
+	gl_Position = projection * transform * vec4(aPosition, 1.0);
 	theColor = aColor;
 }

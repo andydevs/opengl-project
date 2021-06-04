@@ -17,10 +17,10 @@
 #define NUM_VERTICES 4
 #define NUM_POSITION_DIMENSIONS 3
 const float geometry[NUM_VERTICES * NUM_POSITION_DIMENSIONS] = {
-	-0.5f, -0.5f, 0.0f,
-	-0.5f,  0.5f, 0.0f,
-	 0.5f,  0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f
+	-1.0f, -1.0f, 0.0f,
+	-1.0f,  1.0f, 0.0f,
+	 1.0f,  1.0f, 0.0f,
+	 1.0f, -1.0f, 0.0f
 };
 #define NUM_COLOR_DIMENSIONS 3
 const float color[NUM_VERTICES * NUM_COLOR_DIMENSIONS] = {
@@ -46,6 +46,7 @@ ShaderProgram* shaderProgram;
 GLuint gPositionBuffer;
 GLuint gColorBuffer;
 GLuint uMatrixTransform;
+GLuint uMatrixProjection;
 
 void setupOpenGL()
 {
@@ -128,9 +129,11 @@ int main()
 	shaderProgram->bind();
 	useObject();
 	GL_SAFE_CALL(uMatrixTransform = glGetUniformLocation(shaderProgram->handle(), "transform"));
+	GL_SAFE_CALL(uMatrixProjection = glGetUniformLocation(shaderProgram->handle(), "projection"));
 
-	// Transform matrix
+	// Transform and projection matrices
 	glm::mat4 transform;
+	glm::mat4 projection;
 
 	// Set up the whole loop thing
 	float time = 0.0f;
@@ -138,9 +141,11 @@ int main()
 	{
 		// Transform matrix
 		transform = glm::mat4(1.0f);
+		transform = glm::translate(transform, glm::vec3(0.0, 0.0, -6.0));
 		transform = glm::translate(transform, glm::vec3(sinf(time), 0.0, 0.0));
 		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
 		transform = glm::scale(transform, glm::vec3(0.1f * cosf(5.0f*time) + 1.0f, 0.2f * cosf(2.0f*time + 0.2f) + 1.0f , 0.0f));
+		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.0f, 100.0f);
 
 		// Render step
 		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
@@ -152,6 +157,7 @@ int main()
 		GL_SAFE_CALL(glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
 		GL_SAFE_CALL(glEnableVertexAttribArray(1));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
+		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 		GL_SAFE_CALL(glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));
 		GL_SAFE_CALL(glFlush());
 
