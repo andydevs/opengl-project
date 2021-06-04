@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="ArrayBuffer.cpp" />
     <ClCompile Include="GLObject.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="OpenGLProject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="ArrayBuffer.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="GLObject.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
   </ItemGroup>

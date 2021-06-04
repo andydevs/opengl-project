@@ -10,7 +10,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "Shader.h"
 #include "ShaderProgram.h"
+#include "Mesh.h"
 #include "ArrayBuffer.h"
 #include "Debug.h"
 
@@ -88,10 +90,8 @@ Shader* vertexShader;
 Shader* fragmentShader;
 ShaderProgram* shaderProgram;
 
-// Buffers
-ArrayBuffer* aPositionBuffer;
-ArrayBuffer* aColorBuffer;
-ArrayBuffer* aNormalBuffer;
+// Mesh
+Mesh* mesh;
 
 // Uniforms
 GLuint uMatrixTransform;
@@ -157,6 +157,9 @@ void setupOpenGL()
 		<< "OpenGL Version " 
 		<< glGetString(GL_VERSION) 
 		<< std::endl;
+
+	// Set swap speed
+	glfwSwapInterval(1);
 }
 
 int main() 
@@ -174,19 +177,19 @@ int main()
 	shaderProgram->fragmentShader(fragmentShader);
 	shaderProgram->link();
 
-	// Create array buffers
-	aPositionBuffer = new ArrayBuffer(NUM_VERTICES, NUM_POSITION_DIMENSIONS, geometry);
-	aColorBuffer = new ArrayBuffer(NUM_VERTICES, NUM_COLOR_DIMENSIONS, color);
-	aNormalBuffer = new ArrayBuffer(NUM_VERTICES, NUM_NORMAL_DIMENSIONS, normal);
-
-	// Set shader and get uniform locations
-	shaderProgram->bind();
+	// Get uniform locations
 	uMatrixTransform = shaderProgram->uniformHandle("transform");
 	uMatrixCamera = shaderProgram->uniformHandle("camera");
 	uMatrixProjection = shaderProgram->uniformHandle("projection");
 	uVectorAmbientLight = shaderProgram->uniformHandle("ambientLight");
 	uVectorDirectionalLightColor = shaderProgram->uniformHandle("directionalLightColor");
 	uVectorDirectionalLightVector = shaderProgram->uniformHandle("directionalLightVector");
+
+	// Create array buffers
+	mesh = new Mesh(NUM_VERTICES,
+		NUM_POSITION_DIMENSIONS, geometry,
+		NUM_COLOR_DIMENSIONS, color,
+		NUM_NORMAL_DIMENSIONS, normal);
 
 	// Enable vertex attrib arrays
 	GL_SAFE_CALL(glEnableVertexAttribArray(0));
@@ -200,7 +203,7 @@ int main()
 		// Transform matrix
 		transform = glm::mat4(1.0f);
 		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
-		transform = glm::rotate(transform, 0.7f*time, glm::vec3(0.0, 1.0, 0.0));
+		transform = glm::rotate(transform, 0.7f * time, glm::vec3(0.0, 1.0, 0.0));
 		transform = glm::rotate(transform, 0.3f * time, glm::vec3(1.0, 0.0, 0.0));
 		camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 10.0f);
@@ -216,10 +219,9 @@ int main()
 		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
 		GL_SAFE_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		// Set vertex attributes
-		aPositionBuffer->setToAttribute(0);
-		aColorBuffer->setToAttribute(1);
-		aNormalBuffer->setToAttribute(2);
+		// Set mesh and shader
+		shaderProgram->bind();
+		mesh->setToRender();
 
 		// Set uniforms
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
@@ -238,13 +240,11 @@ int main()
 		glfwPollEvents();
 
 		// Increment time
-		time += 0.01;
+		time += 1.0f/60.0f;
 	}
 
 	// Teardown stuff
-	delete aPositionBuffer;
-	delete aColorBuffer;
-	delete aNormalBuffer;
+	delete mesh;
 	delete shaderProgram;
 	delete fragmentShader;
 	delete vertexShader;
