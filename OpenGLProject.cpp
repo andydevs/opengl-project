@@ -88,9 +88,9 @@ Shader* fragmentShader;
 ShaderProgram* shaderProgram;
 
 // Buffers
-GLuint gPositionBuffer;
-GLuint gColorBuffer;
-GLuint gNormalBuffer;
+GLuint aPositionBuffer;
+GLuint aColorBuffer;
+GLuint aNormalBuffer;
 
 // Uniforms
 GLuint uMatrixTransform;
@@ -173,15 +173,17 @@ int main()
 	shaderProgram->fragmentShader(fragmentShader);
 	shaderProgram->link();
 
-	// Set up opengl buffers
-	GL_SAFE_CALL(glGenBuffers(1, &gPositionBuffer));
-	GL_SAFE_CALL(glGenBuffers(1, &gColorBuffer));
-	GL_SAFE_CALL(glGenBuffers(1, &gNormalBuffer));
-	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer));
+	// Generate opengl buffers
+	GL_SAFE_CALL(glGenBuffers(1, &aPositionBuffer));
+	GL_SAFE_CALL(glGenBuffers(1, &aColorBuffer));
+	GL_SAFE_CALL(glGenBuffers(1, &aNormalBuffer));
+
+	// Add buffer data
+	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, aPositionBuffer));
 	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW));
-	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer));
+	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, aColorBuffer));
 	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
-	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer));
+	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, aNormalBuffer));
 	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(normal), normal, GL_STATIC_DRAW));
 
 	// Set shader and get uniform location
@@ -192,6 +194,11 @@ int main()
 	uVectorAmbientLight           = shaderProgram->uniformHandle("ambientLight");
 	uVectorDirectionalLightColor  = shaderProgram->uniformHandle("directionalLightColor");
 	uVectorDirectionalLightVector = shaderProgram->uniformHandle("directionalLightVector");
+
+	// Enable vertex attrib arrays
+	GL_SAFE_CALL(glEnableVertexAttribArray(0));
+	GL_SAFE_CALL(glEnableVertexAttribArray(1));
+	GL_SAFE_CALL(glEnableVertexAttribArray(2));
 
 	// Set up the whole loop thing
 	float time = 0.0f;
@@ -210,26 +217,29 @@ int main()
 		directionalLightColor = glm::vec3(sinf(time) + 0.5, sinf(time + 1.5) + 0.5, sinf(time + 4.1) + 0.5);
 		directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
 		
-		// Render step
+		// Initialize render step
 		GL_SAFE_CALL(glEnable(GL_DEPTH_TEST));
 		GL_SAFE_CALL(glDepthFunc(GL_LESS));
 		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
 		GL_SAFE_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer));
+
+		// Set vertex attributes
+		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, aPositionBuffer));
 		GL_SAFE_CALL(glVertexAttribPointer(0, NUM_POSITION_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
-		GL_SAFE_CALL(glEnableVertexAttribArray(0));
-		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer));
+		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, aColorBuffer));
 		GL_SAFE_CALL(glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
-		GL_SAFE_CALL(glEnableVertexAttribArray(1));
-		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer));
-		GL_SAFE_CALL(glVertexAttribPointer(2, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
-		GL_SAFE_CALL(glEnableVertexAttribArray(2));
+		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, aNormalBuffer));
+		GL_SAFE_CALL(glVertexAttribPointer(2, NUM_NORMAL_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
+
+		// Set uniforms
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixCamera, 1, GL_FALSE, glm::value_ptr(camera)));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 		GL_SAFE_CALL(glUniform3fv(uVectorAmbientLight, 1, glm::value_ptr(ambientLight)));
 		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightColor, 1, glm::value_ptr(directionalLightColor)));
 		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightVector, 1, glm::value_ptr(directionalLightVector)));
+
+		// Draw
 		GL_SAFE_CALL(glDrawElements(GL_TRIANGLES, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));
 		GL_SAFE_CALL(glFlush());
 
@@ -242,11 +252,12 @@ int main()
 	}
 
 	// Teardown stuff
+	GL_SAFE_CALL(glDeleteBuffers(1, &aPositionBuffer));
+	GL_SAFE_CALL(glDeleteBuffers(1, &aColorBuffer));
+	GL_SAFE_CALL(glDeleteBuffers(1, &aNormalBuffer));
 	delete shaderProgram;
 	delete fragmentShader;
 	delete vertexShader;
-	GL_SAFE_CALL(glDeleteBuffers(1, &gPositionBuffer));
-	GL_SAFE_CALL(glDeleteBuffers(1, &gColorBuffer));
 	glfwDestroyWindow(window);
 
 	// Exit
