@@ -36,17 +36,25 @@ const unsigned indices[NUM_TRIANGLES * VERT_PER_TRIANGLE] = {
 	0, 2, 3
 };
 
-// Resources
+// Window
 GLFWwindow* window;
+
+// Shaders
 Shader* vertexShader;
 Shader* fragmentShader;
 ShaderProgram* shaderProgram;
 
-// Shader buffers
+// Buffers
 GLuint gPositionBuffer;
 GLuint gColorBuffer;
 GLuint uMatrixTransform;
+GLuint uMatrixCamera;
 GLuint uMatrixProjection;
+
+// Transform and projection matrices
+glm::mat4 transform;
+glm::mat4 camera;
+glm::mat4 projection;
 
 void setupOpenGL()
 {
@@ -98,14 +106,6 @@ void setupOpenGL()
 		<< std::endl;
 }
 
-void useObject()
-{
-	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer));
-	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW));
-	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer));
-	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
-}
-
 int main() 
 {
 	// Setup opengl
@@ -124,27 +124,27 @@ int main()
 	// Set up opengl buffers
 	GL_SAFE_CALL(glGenBuffers(1, &gPositionBuffer));
 	GL_SAFE_CALL(glGenBuffers(1, &gColorBuffer));
+	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gPositionBuffer));
+	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW));
+	GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer));
+	GL_SAFE_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
 
 	// Set object and shader
 	shaderProgram->bind();
-	useObject();
 	GL_SAFE_CALL(uMatrixTransform = glGetUniformLocation(shaderProgram->handle(), "transform"));
+	GL_SAFE_CALL(uMatrixCamera = glGetUniformLocation(shaderProgram->handle(), "camera"));
 	GL_SAFE_CALL(uMatrixProjection = glGetUniformLocation(shaderProgram->handle(), "projection"));
-
-	// Transform and projection matrices
-	glm::mat4 transform;
-	glm::mat4 projection;
 
 	// Set up the whole loop thing
 	float time = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Transform matrix
-		transform = glm::mat4(1.0f);
-		transform = glm::translate(transform, glm::vec3(0.0, 0.0, -6.0));
-		transform = glm::translate(transform, glm::vec3(sinf(time), 0.0, 0.0));
-		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
-		transform = glm::scale(transform, glm::vec3(0.1f * cosf(5.0f*time) + 1.0f, 0.2f * cosf(2.0f*time + 0.2f) + 1.0f , 0.0f));
+		transform  = glm::mat4(1.0f);
+		transform  = glm::translate(transform, glm::vec3(sinf(time), 0.0, 0.0));
+		transform  = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
+		transform  = glm::scale(transform, glm::vec3(0.1f * cosf(5.0f*time) + 1.0f, 0.2f * cosf(2.0f*time + 0.2f) + 1.0f , 0.0f));
+		camera     = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.0f, 100.0f);
 
 		// Render step
@@ -157,6 +157,7 @@ int main()
 		GL_SAFE_CALL(glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
 		GL_SAFE_CALL(glEnableVertexAttribArray(1));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
+		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixCamera, 1, GL_FALSE, glm::value_ptr(camera)));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 		GL_SAFE_CALL(glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));
 		GL_SAFE_CALL(glFlush());
@@ -173,6 +174,8 @@ int main()
 	delete shaderProgram;
 	delete fragmentShader;
 	delete vertexShader;
+	GL_SAFE_CALL(glDeleteBuffers(1, &gPositionBuffer));
+	GL_SAFE_CALL(glDeleteBuffers(1, &gColorBuffer));
 	glfwDestroyWindow(window);
 
 	// Exit
