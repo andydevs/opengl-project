@@ -1,14 +1,17 @@
 #version 330
 
 // Attributes
-layout (location = 0) in vec2 aPosition;
+layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec3 aColor;
+
+// Uniforms
+uniform mat4 transform;
 
 // Outputs
 out vec3 theColor;
 
 void main()
 {
-	gl_Position = vec4(aPosition, 0.0, 1.0);
+	gl_Position = transform * vec4(aPosition, 1.0);
 	theColor = aColor;
 }

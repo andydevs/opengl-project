@@ -15,4 +15,5 @@ public:
 	void fragmentShader(Shader* fs);
 	void link();
 	void bind();
+	GLuint handle();
 };

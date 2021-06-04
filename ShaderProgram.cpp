@@ -66,3 +66,8 @@ void ShaderProgram::bind()
 {
 	GL_SAFE_CALL(glUseProgram(m_shaderProgram));
 }
+
+GLuint ShaderProgram::handle()
+{
+	return m_shaderProgram;
+}

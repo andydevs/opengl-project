@@ -5,6 +5,9 @@
 #include <sstream>
 #include <vector>
 #include <cstring>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "ShaderProgram.h"
@@ -12,18 +15,18 @@
 
 // Ooooh Data
 #define NUM_VERTICES 4
-#define NUM_POSITION_DIMENSIONS 2
+#define NUM_POSITION_DIMENSIONS 3
 const float geometry[NUM_VERTICES * NUM_POSITION_DIMENSIONS] = {
-	-0.5f, -0.5f,
-	-0.5f,  0.5f,
-	 0.5f,  0.5f,
-	 0.5f, -0.5f
+	-0.5f, -0.5f, 0.0f,
+	-0.5f,  0.5f, 0.0f,
+	 0.5f,  0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f
 };
 #define NUM_COLOR_DIMENSIONS 3
 const float color[NUM_VERTICES * NUM_COLOR_DIMENSIONS] = {
 	0.0, 0.0, 1.0,
-	1.0, 0.0, 0.0,
-	0.0, 0.0, 1.0,
+	0.0, 1.0, 0.0,
+	1.0, 1.0, 0.0,
 	1.0, 0.0, 0.0
 };
 #define NUM_TRIANGLES 2
@@ -42,7 +45,7 @@ ShaderProgram* shaderProgram;
 // Shader buffers
 GLuint gPositionBuffer;
 GLuint gColorBuffer;
-
+GLuint uMatrixTransform;
 
 void setupOpenGL()
 {
@@ -124,10 +127,21 @@ int main()
 	// Set object and shader
 	shaderProgram->bind();
 	useObject();
+	GL_SAFE_CALL(uMatrixTransform = glGetUniformLocation(shaderProgram->handle(), "transform"));
+
+	// Transform matrix
+	glm::mat4 transform;
 
 	// Set up the whole loop thing
+	float time = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
+		// Transform matrix
+		transform = glm::mat4(1.0f);
+		transform = glm::translate(transform, glm::vec3(sinf(time), 0.0, 0.0));
+		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
+		transform = glm::scale(transform, glm::vec3(0.1f * cosf(5.0f*time) + 1.0f, 0.2f * cosf(2.0f*time + 0.2f) + 1.0f , 0.0f));
+
 		// Render step
 		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
 		GL_SAFE_CALL(glClear(GL_COLOR_BUFFER_BIT));
@@ -137,12 +151,16 @@ int main()
 		GL_SAFE_CALL(glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer));
 		GL_SAFE_CALL(glVertexAttribPointer(1, NUM_COLOR_DIMENSIONS, GL_FLOAT, GL_FALSE, 0, 0));
 		GL_SAFE_CALL(glEnableVertexAttribArray(1));
+		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
 		GL_SAFE_CALL(glDrawElements(GL_TRIANGLE_STRIP, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));
 		GL_SAFE_CALL(glFlush());
 
 		// Update glfw
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		// Increment time
+		time += 0.01;
 	}
 
 	// Teardown stuff
