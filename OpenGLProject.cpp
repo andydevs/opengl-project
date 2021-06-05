@@ -103,6 +103,7 @@ GLuint uMatrixTransform;
 GLuint uMatrixCamera;
 GLuint uMatrixProjection;
 GLuint uVectorAmbientLight;
+GLuint uVectorRimLight;
 GLuint uVectorDirectionalLightColor;
 GLuint uVectorDirectionalLightVector;
 
@@ -111,6 +112,7 @@ glm::mat4 transform;
 glm::mat4 camera;
 glm::mat4 projection;
 glm::vec3 ambientLight;
+glm::vec3 rimLight;
 glm::vec3 directionalLightColor;
 glm::vec3 directionalLightVector;
 
@@ -186,6 +188,7 @@ int main()
 	uMatrixTransform = shaderProgram->uniformHandle("transform");
 	uMatrixCamera = shaderProgram->uniformHandle("camera");
 	uMatrixProjection = shaderProgram->uniformHandle("projection");
+	uVectorRimLight = shaderProgram->uniformHandle("rimLight");
 	uVectorAmbientLight = shaderProgram->uniformHandle("ambientLight");
 	uVectorDirectionalLightColor = shaderProgram->uniformHandle("directionalLightColor");
 	uVectorDirectionalLightVector = shaderProgram->uniformHandle("directionalLightVector");
@@ -221,6 +224,7 @@ int main()
 		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 10.0f);
 
 		// Lighting
+		rimLight = glm::vec3(0.4f, 0.4f, 0.4f);
 		ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
 		directionalLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 		directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
@@ -243,6 +247,7 @@ int main()
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixCamera, 1, GL_FALSE, glm::value_ptr(camera)));
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixProjection, 1, GL_FALSE, glm::value_ptr(projection)));
+		GL_SAFE_CALL(glUniform3fv(uVectorRimLight, 1, glm::value_ptr(rimLight)));
 		GL_SAFE_CALL(glUniform3fv(uVectorAmbientLight, 1, glm::value_ptr(ambientLight)));
 		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightColor, 1, glm::value_ptr(directionalLightColor)));
 		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightVector, 1, glm::value_ptr(directionalLightVector)));

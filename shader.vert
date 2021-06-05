@@ -16,9 +16,13 @@ uniform vec3 directionalLightColor;
 uniform vec3 directionalLightVector;
 
 // Outputs
+out vec3 thePos;
 out vec2 theTexCoord;
-out vec3 theColor;
+out vec3 theNormal;
 out vec3 theLight;
+
+// Intermediates
+vec4 viewSpacePos;
 
 void main()
 {
@@ -32,7 +36,10 @@ void main()
 	vec3 directionalLight = directionalLightColor * directionalValue;
 
 	// Outputs
-	gl_Position = projection * modelView * vec4(aPosition, 1.0);
+	viewSpacePos = transform * vec4(aPosition, 1.0);
+	gl_Position = projection * camera * viewSpacePos;
+	thePos = vec3(viewSpacePos);
 	theTexCoord = aTexcoord;
+	theNormal = transNormal;
 	theLight = ambientLight + directionalLight;
 }
