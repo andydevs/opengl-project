@@ -2,8 +2,9 @@
 
 // Attributes
 layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec3 aNormal;
+layout (location = 1) in vec2 aTexcoord;
+layout (location = 2) in vec3 aColor;
+layout (location = 3) in vec3 aNormal;
 
 // Uniforms
 uniform mat4 transform;
@@ -14,6 +15,7 @@ uniform vec3 directionalLightColor;
 uniform vec3 directionalLightVector;
 
 // Outputs
+out vec2 theTexCoord;
 out vec3 theColor;
 out vec3 theLight;
 
@@ -30,6 +32,7 @@ void main()
 
 	// Outputs
 	gl_Position = projection * modelView * vec4(aPosition, 1.0);
+	theTexCoord = aTexcoord;
 	theColor = aColor;
 	theLight = ambientLight + directionalLight;
 }

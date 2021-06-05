@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <soil.h>
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "Mesh.h"
@@ -30,6 +31,18 @@ const float geometry[NUM_VERTICES * NUM_POSITION_DIMENSIONS] = {
 	 1.0f,  1.0f,  1.0f,
 	 1.0f, -1.0f,  1.0f,
 
+};
+#define NUM_TEXCOORD_DIMENSIONS 2
+const float texcoord[NUM_VERTICES * NUM_TEXCOORD_DIMENSIONS] = {
+	0.0f, 0.0f,
+	0.0f, 1.0f,
+	1.0f, 1.0f,
+	1.0f, 0.0f,
+
+	1.0f, 1.0f,
+	1.0f, 0.0f,
+	0.0f, 0.0f,
+	0.0f, 1.0f,
 };
 #define NUM_COLOR_DIMENSIONS 3
 const float color[NUM_VERTICES * NUM_COLOR_DIMENSIONS] = {
@@ -89,6 +102,9 @@ GLFWwindow* window;
 Shader* vertexShader;
 Shader* fragmentShader;
 ShaderProgram* shaderProgram;
+
+// Texture
+GLuint textureHandle;
 
 // Mesh
 Mesh* mesh;
@@ -185,16 +201,25 @@ int main()
 	uVectorDirectionalLightColor = shaderProgram->uniformHandle("directionalLightColor");
 	uVectorDirectionalLightVector = shaderProgram->uniformHandle("directionalLightVector");
 
-	// Create array buffers
+	// Create mesh object
 	mesh = new Mesh(NUM_VERTICES,
 		NUM_POSITION_DIMENSIONS, geometry,
+		NUM_TEXCOORD_DIMENSIONS, texcoord,
 		NUM_COLOR_DIMENSIONS, color,
 		NUM_NORMAL_DIMENSIONS, normal);
+
+	// Load texture
+	textureHandle = SOIL_load_OGL_texture("brick-texture.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	if (textureHandle == 0) {
+		std::cout << "ERROR Loading Texture: " << SOIL_last_result() << std::endl;
+		__debugbreak();
+	}
 
 	// Enable vertex attrib arrays
 	GL_SAFE_CALL(glEnableVertexAttribArray(0));
 	GL_SAFE_CALL(glEnableVertexAttribArray(1));
 	GL_SAFE_CALL(glEnableVertexAttribArray(2));
+	GL_SAFE_CALL(glEnableVertexAttribArray(3));
 
 	// Set up the whole loop thing
 	float time = 0.0f;
@@ -209,8 +234,8 @@ int main()
 		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 10.0f);
 
 		// Lighting
-		ambientLight = glm::vec3(0.2, 0.2, 0.2);
-		directionalLightColor = glm::vec3(sinf(time) + 0.5, sinf(time + 1.5) + 0.5, sinf(time + 4.1) + 0.5);
+		ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
+		directionalLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 		directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
 		
 		// Initialize render step
@@ -219,9 +244,13 @@ int main()
 		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
 		GL_SAFE_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		// Set mesh and shader
+		// Set shader and mesh
 		shaderProgram->bind();
 		mesh->setToRender();
+
+		// Set texture
+		GL_SAFE_CALL(glActiveTexture(GL_TEXTURE0));
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, textureHandle));
 
 		// Set uniforms
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
@@ -248,6 +277,7 @@ int main()
 	delete shaderProgram;
 	delete fragmentShader;
 	delete vertexShader;
+	GL_SAFE_CALL(glDeleteTextures(1, &textureHandle));
 	glfwDestroyWindow(window);
 
 	// Exit
