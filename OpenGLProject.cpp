@@ -44,17 +44,6 @@ const float texcoord[NUM_VERTICES * NUM_TEXCOORD_DIMENSIONS] = {
 	0.0f, 0.0f,
 	0.0f, 1.0f,
 };
-#define NUM_COLOR_DIMENSIONS 3
-const float color[NUM_VERTICES * NUM_COLOR_DIMENSIONS] = {
-	1.0, 0.0, 0.0,
-	1.0, 0.5, 0.0,
-	1.0, 1.0, 0.0,
-	0.0, 1.0, 0.0,
-	0.0, 1.0, 1.0,
-	0.0, 0.0, 1.0,
-	0.5, 0.0, 1.0,
-	1.0, 0.0, 1.0,
-};
 #define NUM_NORMAL_DIMENSIONS 3
 const float normal[NUM_VERTICES * NUM_NORMAL_DIMENSIONS] = {
 	-0.58, -0.58, -0.58,
@@ -205,7 +194,6 @@ int main()
 	mesh = new Mesh(NUM_VERTICES,
 		NUM_POSITION_DIMENSIONS, geometry,
 		NUM_TEXCOORD_DIMENSIONS, texcoord,
-		NUM_COLOR_DIMENSIONS, color,
 		NUM_NORMAL_DIMENSIONS, normal);
 
 	// Load texture
@@ -219,7 +207,6 @@ int main()
 	GL_SAFE_CALL(glEnableVertexAttribArray(0));
 	GL_SAFE_CALL(glEnableVertexAttribArray(1));
 	GL_SAFE_CALL(glEnableVertexAttribArray(2));
-	GL_SAFE_CALL(glEnableVertexAttribArray(3));
 
 	// Set up the whole loop thing
 	float time = 0.0f;

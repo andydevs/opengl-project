@@ -5,7 +5,6 @@ class Mesh
 {
 private:
 	ArrayBuffer* m_aPositionBuffer;
-	ArrayBuffer* m_aColorBuffer;
 	ArrayBuffer* m_aTexcoordBuffer;
 	ArrayBuffer* m_aNormalBuffer;
 public:
@@ -15,8 +14,6 @@ public:
 		const float* position,
 		unsigned texcoordDim,
 		const float* texcoord,
-		unsigned colorDim,
-		const float* color,
 		unsigned normalDim,
 		const float* normal);
 	~Mesh();
