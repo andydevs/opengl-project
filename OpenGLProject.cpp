@@ -18,43 +18,120 @@
 #include "Debug.h"
 
 // Ooooh Data
-#define NUM_VERTICES 8
+#define NUM_VERTICES 24
 #define NUM_POSITION_DIMENSIONS 3
 const float geometry[NUM_VERTICES * NUM_POSITION_DIMENSIONS] = {
+	// Front
 	-1.0f, -1.0f, -1.0f,
 	-1.0f,  1.0f, -1.0f,
 	 1.0f,  1.0f, -1.0f,
 	 1.0f, -1.0f, -1.0f,
-
+	
+	// Back
 	-1.0f, -1.0f,  1.0f,
 	-1.0f,  1.0f,  1.0f,
 	 1.0f,  1.0f,  1.0f,
 	 1.0f, -1.0f,  1.0f,
 
+	// Left
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	// Right
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+
+	// Top
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+
+	// Bottom
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f
 };
 #define NUM_TEXCOORD_DIMENSIONS 2
 const float texcoord[NUM_VERTICES * NUM_TEXCOORD_DIMENSIONS] = {
+	// Front
 	0.0f, 0.0f,
 	0.0f, 1.0f,
 	1.0f, 1.0f,
 	1.0f, 0.0f,
 
-	1.0f, 1.0f,
-	1.0f, 0.0f,
+	// Back
 	0.0f, 0.0f,
 	0.0f, 1.0f,
+	1.0f, 1.0f,
+	1.0f, 0.0f,
+
+	// Left
+	0.0f, 0.0f,
+	0.0f, 1.0f,
+	1.0f, 1.0f,
+	1.0f, 0.0f,
+
+	// Right
+	0.0f, 0.0f,
+	0.0f, 1.0f,
+	1.0f, 1.0f,
+	1.0f, 0.0f,
+
+	// Top
+	0.0f, 0.0f,
+	0.0f, 1.0f,
+	1.0f, 1.0f,
+	1.0f, 0.0f,
+
+	// Bottom
+	0.0f, 0.0f,
+	0.0f, 1.0f,
+	1.0f, 1.0f,
+	1.0f, 0.0f
 };
 #define NUM_NORMAL_DIMENSIONS 3
 const float normal[NUM_VERTICES * NUM_NORMAL_DIMENSIONS] = {
-	-0.58, -0.58, -0.58,
-	-0.58,  0.58, -0.58,
-	 0.58,  0.58, -0.58,
-	 0.58, -0.58, -0.58,
+	// Front
+	 0.0,  0.0, -1.0,
+	 0.0,  0.0, -1.0,
+	 0.0,  0.0, -1.0,
+	 0.0,  0.0, -1.0,
 
-	-0.58, -0.58,  0.58,
-	-0.58,  0.58,  0.58,
-	 0.58,  0.58,  0.58,
-	 0.58, -0.58,  0.58
+	// Back
+	 0.0,  0.0,  1.0,
+	 0.0,  0.0,  1.0,
+	 0.0,  0.0,  1.0,
+	 0.0,  0.0,  1.0,
+
+	// Left
+	-1.0,  0.0,  0.0,
+	-1.0,  0.0,  0.0,
+	-1.0,  0.0,  0.0,
+	-1.0,  0.0,  0.0,
+
+	// Right
+	 1.0,  0.0, -1.0,
+	 1.0,  0.0, -1.0,
+	 1.0,  0.0, -1.0,
+	 1.0,  0.0, -1.0,
+
+	// Top
+	 0.0,  1.0, -1.0,
+	 0.0,  1.0, -1.0,
+	 0.0,  1.0, -1.0,
+	 0.0,  1.0, -1.0,
+
+	// Bottom
+	 0.0, -1.0, -1.0,
+	 0.0, -1.0, -1.0,
+	 0.0, -1.0, -1.0,
+	 0.0, -1.0, -1.0,
 };
 #define NUM_TRIANGLES 12
 #define VERT_PER_TRIANGLE 3
@@ -68,20 +145,20 @@ const unsigned indices[NUM_TRIANGLES * VERT_PER_TRIANGLE] = {
 	4, 6, 7,
 	
 	// Right
-	0, 4, 5, 
-	0, 5, 1,
+	8, 9, 10,
+	8, 10, 11,
 
 	// Left
-	3, 7, 6,
-	3, 6, 2,
+	12, 13, 14,
+	12, 14, 15,
 
 	// Top
-	1, 5, 6,
-	1, 6, 2,
+	16, 17, 18,
+	16, 18, 19,
 
 	// Bottom
-	0, 4, 7,
-	0, 7, 3
+	20, 21, 22,
+	20, 22, 23
 };
 
 // Window
@@ -116,7 +193,7 @@ glm::vec3 rimLight;
 glm::vec3 directionalLightColor;
 glm::vec3 directionalLightVector;
 
-void setupOpenGL()
+void setupOpenGL(unsigned width, unsigned height, const char* title)
 {
 	// Initialize GLFW
 	// Exit if didn't work
@@ -135,7 +212,7 @@ void setupOpenGL()
 
 	// Create window
 	// Again, exit if didn't work
-	window = glfwCreateWindow(1280, 720, "OpenGL Test", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 	if (!window)
 	{
 		std::cout 
@@ -172,7 +249,7 @@ void setupOpenGL()
 int main() 
 {
 	// Setup opengl
-	setupOpenGL();
+	setupOpenGL(1280, 720, "OpenGL Project");
 
 	// Compile and link shader program
 	vertexShader = new Shader(GL_VERTEX_SHADER, "shader.vert");
@@ -224,9 +301,9 @@ int main()
 		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 10.0f);
 
 		// Lighting
-		rimLight = glm::vec3(0.4f, 0.4f, 0.4f);
+		rimLight = glm::vec3(0.1f, 0.1f, 0.1f);
 		ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
-		directionalLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+		directionalLightColor = glm::vec3(0.3f, 0.3f, 0.3f);
 		directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
 		
 		// Initialize render step
