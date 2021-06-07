@@ -15,6 +15,7 @@
 #include "ShaderProgram.h"
 #include "Mesh.h"
 #include "ArrayBuffer.h"
+#include "Texture.h"
 #include "Debug.h"
 
 // Ooooh Data
@@ -170,6 +171,7 @@ Shader* fragmentShader;
 ShaderProgram* shaderProgram;
 
 // Texture
+Texture* texture;
 GLuint textureHandle;
 
 // Mesh
@@ -277,11 +279,7 @@ int main()
 		NUM_NORMAL_DIMENSIONS, normal);
 
 	// Load texture
-	textureHandle = SOIL_load_OGL_texture("brick-texture.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
-	if (textureHandle == 0) {
-		std::cout << "ERROR Loading Texture: " << SOIL_last_result() << std::endl;
-		__debugbreak();
-	}
+	texture = new Texture("brick-texture.jpg");
 
 	// Enable vertex attrib arrays
 	GL_SAFE_CALL(glEnableVertexAttribArray(0));
@@ -312,13 +310,10 @@ int main()
 		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
 		GL_SAFE_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		// Set shader and mesh
+		// Set shader, mesh, and texture
 		shaderProgram->bind();
 		mesh->setToRender();
-
-		// Set texture
-		GL_SAFE_CALL(glActiveTexture(GL_TEXTURE0));
-		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, textureHandle));
+		texture->setToRender();
 
 		// Set uniforms
 		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
@@ -346,7 +341,7 @@ int main()
 	delete shaderProgram;
 	delete fragmentShader;
 	delete vertexShader;
-	GL_SAFE_CALL(glDeleteTextures(1, &textureHandle));
+	delete texture;
 	glfwDestroyWindow(window);
 
 	// Exit
