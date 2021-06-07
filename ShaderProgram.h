@@ -1,5 +1,6 @@
 #pragma once
 #include <GL/GLEW.h>
+#include <glm/glm.hpp>
 #include "Shader.h"
 
 class ShaderProgram : public GLObject
@@ -15,4 +16,6 @@ public:
 	void link();
 	void bind();
 	GLuint uniformHandle(const char* name);
+	void setUniformMatrix4fv(const char* name, glm::mat4 matrix);
+	void setUniform3fv(const char* name, glm::vec3 vector);
 };

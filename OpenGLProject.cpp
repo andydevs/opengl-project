@@ -316,13 +316,13 @@ int main()
 		texture->setToRender();
 
 		// Set uniforms
-		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixTransform, 1, GL_FALSE, glm::value_ptr(transform)));
-		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixCamera, 1, GL_FALSE, glm::value_ptr(camera)));
-		GL_SAFE_CALL(glUniformMatrix4fv(uMatrixProjection, 1, GL_FALSE, glm::value_ptr(projection)));
-		GL_SAFE_CALL(glUniform3fv(uVectorRimLight, 1, glm::value_ptr(rimLight)));
-		GL_SAFE_CALL(glUniform3fv(uVectorAmbientLight, 1, glm::value_ptr(ambientLight)));
-		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightColor, 1, glm::value_ptr(directionalLightColor)));
-		GL_SAFE_CALL(glUniform3fv(uVectorDirectionalLightVector, 1, glm::value_ptr(directionalLightVector)));
+		shaderProgram->setUniformMatrix4fv("transform", transform);
+		shaderProgram->setUniformMatrix4fv("camera", camera);
+		shaderProgram->setUniformMatrix4fv("projection", projection);
+		shaderProgram->setUniform3fv("rimLight", rimLight);
+		shaderProgram->setUniform3fv("ambientLight", ambientLight);
+		shaderProgram->setUniform3fv("directionalLightColor", directionalLightColor);
+		shaderProgram->setUniform3fv("directionalLightVector", directionalLightVector);
 
 		// Draw
 		GL_SAFE_CALL(glDrawElements(GL_TRIANGLES, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));

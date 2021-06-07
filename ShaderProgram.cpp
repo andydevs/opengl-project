@@ -1,4 +1,5 @@
 #include "ShaderProgram.h"
+#include <glm/gtc/type_ptr.hpp>
 #include <cstring>
 #include <iostream>
 #include <fstream>
@@ -72,4 +73,18 @@ GLuint ShaderProgram::uniformHandle(const char* name)
 	GLuint uniformHandle;
 	GL_SAFE_CALL(uniformHandle = glGetUniformLocation(m_handle, name));
 	return uniformHandle;
+}
+
+void ShaderProgram::setUniformMatrix4fv(const char* name, glm::mat4 matrix)
+{
+	GLuint uniformHandle;
+	GL_SAFE_CALL(uniformHandle = glGetUniformLocation(m_handle, name));
+	GL_SAFE_CALL(glUniformMatrix4fv(uniformHandle, 1, GL_FALSE, glm::value_ptr(matrix)));
+}
+
+void ShaderProgram::setUniform3fv(const char* name, glm::vec3 vector)
+{
+	GLuint uniformHandle;
+	GL_SAFE_CALL(uniformHandle = glGetUniformLocation(m_handle, name));
+	GL_SAFE_CALL(glUniform3fv(uniformHandle, 1, glm::value_ptr(vector)));
 }
