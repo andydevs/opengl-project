@@ -165,26 +165,12 @@ const unsigned indices[NUM_TRIANGLES * VERT_PER_TRIANGLE] = {
 // Window
 GLFWwindow* window;
 
-// Shaders
+// Resources
 Shader* vertexShader;
 Shader* fragmentShader;
 ShaderProgram* shaderProgram;
-
-// Texture
 Texture* texture;
-GLuint textureHandle;
-
-// Mesh
 Mesh* mesh;
-
-// Uniforms
-GLuint uMatrixTransform;
-GLuint uMatrixCamera;
-GLuint uMatrixProjection;
-GLuint uVectorAmbientLight;
-GLuint uVectorRimLight;
-GLuint uVectorDirectionalLightColor;
-GLuint uVectorDirectionalLightVector;
 
 // Transform and projection matrices
 glm::mat4 transform;
@@ -263,22 +249,11 @@ int main()
 	shaderProgram->fragmentShader(fragmentShader);
 	shaderProgram->link();
 
-	// Get uniform locations
-	uMatrixTransform = shaderProgram->uniformHandle("transform");
-	uMatrixCamera = shaderProgram->uniformHandle("camera");
-	uMatrixProjection = shaderProgram->uniformHandle("projection");
-	uVectorRimLight = shaderProgram->uniformHandle("rimLight");
-	uVectorAmbientLight = shaderProgram->uniformHandle("ambientLight");
-	uVectorDirectionalLightColor = shaderProgram->uniformHandle("directionalLightColor");
-	uVectorDirectionalLightVector = shaderProgram->uniformHandle("directionalLightVector");
-
-	// Create mesh object
+	// Create mesh object and load texture
 	mesh = new Mesh(NUM_VERTICES,
 		NUM_POSITION_DIMENSIONS, geometry,
 		NUM_TEXCOORD_DIMENSIONS, texcoord,
 		NUM_NORMAL_DIMENSIONS, normal);
-
-	// Load texture
 	texture = new Texture("brick-texture.jpg");
 
 	// Enable vertex attrib arrays
