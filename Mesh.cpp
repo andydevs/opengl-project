@@ -188,10 +188,3 @@ void Mesh::draw()
 		m_numTriangles * VERT_PER_TRIANGLE, 
 		GL_UNSIGNED_INT, m_indices));
 }
-
-void Mesh::setToRender()
-{
-	m_aPositionBuffer->setToAttribute(0);
-	m_aTexcoordBuffer->setToAttribute(1);
-	m_aNormalBuffer->setToAttribute(2);
-}

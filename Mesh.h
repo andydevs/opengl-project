@@ -26,5 +26,4 @@ public:
 		const unsigned* indices);
 	~Mesh();
 	void draw();
-	void setToRender();
 };
