@@ -277,6 +277,7 @@ int main()
 	GL_SAFE_CALL(glEnableVertexAttribArray(2));
 
 	// Set up the whole loop thing
+	float dtime = 1.0f / 60.0f;
 	float time = 0.0f;
 	camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	projection = glm::perspective(45.0f, (float)width / height, 0.1f, 10.0f);
@@ -320,18 +321,16 @@ int main()
 		glfwPollEvents();
 
 		// Increment time
-		time += 1.0f/60.0f;
+		time += dtime;
 	}
 
-	// Teardown stuff
+	// Teardown stuff and exit
 	delete mesh;
 	delete texture;
 	delete shaderProgram;
 	delete fragmentShader;
 	delete vertexShader;
 	glfwDestroyWindow(window);
-
-	// Exit
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }
