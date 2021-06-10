@@ -118,6 +118,7 @@ int main()
 	if (!mesh)
 	{
 		std::cout << "Something went wrong reading mesh" << std::endl;
+		delete texture;
 		delete shaderProgram;
 		delete fragmentShader;
 		delete vertexShader;
