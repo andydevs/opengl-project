@@ -253,13 +253,23 @@ int main()
 	shaderProgram->fragmentShader(fragmentShader);
 	shaderProgram->link();
 
-	// Create mesh object and load texture
-	mesh = new Mesh(NUM_VERTICES,
-		NUM_POSITION_DIMENSIONS, geometry,
-		NUM_TEXCOORD_DIMENSIONS, texcoord,
-		NUM_NORMAL_DIMENSIONS, normal,
-		NUM_TRIANGLES, indices);
+	// Load texture
 	texture = new Texture("brick-texture.jpg");
+	std::cout << "Loaded texture" << std::endl;
+
+	// Read mesh object
+	mesh = Mesh::readObj("cube.obj");
+	if (!mesh)
+	{
+		std::cout << "Something went wrong reading mesh" << std::endl;
+		delete shaderProgram;
+		delete fragmentShader;
+		delete vertexShader;
+		glfwDestroyWindow(window);
+		glfwTerminate();
+		return EXIT_FAILURE;
+	}
+	std::cout << "Mesh loaded successfully" << std::endl;
 
 	// Enable vertex attrib arrays
 	GL_SAFE_CALL(glEnableVertexAttribArray(0));
@@ -268,6 +278,8 @@ int main()
 
 	// Set up the whole loop thing
 	float time = 0.0f;
+	camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
+	projection = glm::perspective(45.0f, (float)width / height, 0.1f, 10.0f);
 	while (!glfwWindowShouldClose(window))
 	{
 		// Transform matrix
@@ -275,8 +287,6 @@ int main()
 		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
 		transform = glm::rotate(transform, 0.7f * time, glm::vec3(0.0, 1.0, 0.0));
 		transform = glm::rotate(transform, 0.3f * time, glm::vec3(1.0, 0.0, 0.0));
-		camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
-		projection = glm::perspective(45.0f, (float)width/height, 0.1f, 10.0f);
 
 		// Lighting
 		rimLight = glm::vec3(0.3f, 0.3f, 0.3f);
@@ -315,10 +325,10 @@ int main()
 
 	// Teardown stuff
 	delete mesh;
+	delete texture;
 	delete shaderProgram;
 	delete fragmentShader;
 	delete vertexShader;
-	delete texture;
 	glfwDestroyWindow(window);
 
 	// Exit

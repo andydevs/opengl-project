@@ -13,6 +13,7 @@ private:
 	unsigned m_numTriangles;
 	unsigned* m_indices;
 public:
+	static Mesh* readObj(const char* filename);
 	Mesh(
 		unsigned numVertices,
 		unsigned positionDim,
