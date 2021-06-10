@@ -253,7 +253,8 @@ int main()
 	mesh = new Mesh(NUM_VERTICES,
 		NUM_POSITION_DIMENSIONS, geometry,
 		NUM_TEXCOORD_DIMENSIONS, texcoord,
-		NUM_NORMAL_DIMENSIONS, normal);
+		NUM_NORMAL_DIMENSIONS, normal,
+		NUM_TRIANGLES, indices);
 	texture = new Texture("brick-texture.jpg");
 
 	// Enable vertex attrib arrays
@@ -267,6 +268,7 @@ int main()
 	{
 		// Transform matrix
 		transform = glm::mat4(1.0f);
+		transform = glm::translate(transform, glm::vec3(3.0, 0.0, 0.0));
 		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
 		transform = glm::rotate(transform, 0.7f * time, glm::vec3(0.0, 1.0, 0.0));
 		transform = glm::rotate(transform, 0.3f * time, glm::vec3(1.0, 0.0, 0.0));
@@ -285,12 +287,9 @@ int main()
 		GL_SAFE_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
 		GL_SAFE_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		// Set shader, mesh, and texture
+		// Set resources (shader, uniforms, and textures)
 		shaderProgram->bind();
-		mesh->setToRender();
 		texture->setToRender();
-
-		// Set uniforms
 		shaderProgram->setUniformMatrix4fv("transform", transform);
 		shaderProgram->setUniformMatrix4fv("camera", camera);
 		shaderProgram->setUniformMatrix4fv("projection", projection);
@@ -299,11 +298,11 @@ int main()
 		shaderProgram->setUniform3fv("directionalLightColor", directionalLightColor);
 		shaderProgram->setUniform3fv("directionalLightVector", directionalLightVector);
 
-		// Draw
-		GL_SAFE_CALL(glDrawElements(GL_TRIANGLES, NUM_TRIANGLES * VERT_PER_TRIANGLE, GL_UNSIGNED_INT, indices));
-		GL_SAFE_CALL(glFlush());
+		// Draw mesh
+		mesh->draw();
 
-		// Update glfw
+		// Update window
+		GL_SAFE_CALL(glFlush());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
