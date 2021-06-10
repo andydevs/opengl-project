@@ -117,22 +117,22 @@ const float normal[NUM_VERTICES * NUM_NORMAL_DIMENSIONS] = {
 	-1.0,  0.0,  0.0,
 
 	// Right
-	 1.0,  0.0, -1.0,
-	 1.0,  0.0, -1.0,
-	 1.0,  0.0, -1.0,
-	 1.0,  0.0, -1.0,
+	 1.0,  0.0,  0.0,
+	 1.0,  0.0,  0.0,
+	 1.0,  0.0,  0.0,
+	 1.0,  0.0,  0.0,
 
 	// Top
-	 0.0,  1.0, -1.0,
-	 0.0,  1.0, -1.0,
-	 0.0,  1.0, -1.0,
-	 0.0,  1.0, -1.0,
+	 0.0,  1.0,  0.0,
+	 0.0,  1.0,  0.0,
+	 0.0,  1.0,  0.0,
+	 0.0,  1.0,  0.0,
 
 	// Bottom
-	 0.0, -1.0, -1.0,
-	 0.0, -1.0, -1.0,
-	 0.0, -1.0, -1.0,
-	 0.0, -1.0, -1.0,
+	 0.0, -1.0,  0.0,
+	 0.0, -1.0,  0.0,
+	 0.0, -1.0,  0.0,
+	 0.0, -1.0,  0.0,
 };
 #define NUM_TRIANGLES 12
 #define VERT_PER_TRIANGLE 3
@@ -236,8 +236,12 @@ void setupOpenGL(unsigned width, unsigned height, const char* title)
 
 int main() 
 {
+	// Height and width
+	int width = 1280;
+	int height = 720;
+
 	// Setup opengl
-	setupOpenGL(1280, 720, "OpenGL Project");
+	setupOpenGL(width, height, "OpenGL Project");
 
 	// Compile and link shader program
 	vertexShader = new Shader(GL_VERTEX_SHADER, "shader.vert");
@@ -268,15 +272,14 @@ int main()
 	{
 		// Transform matrix
 		transform = glm::mat4(1.0f);
-		transform = glm::translate(transform, glm::vec3(3.0, 0.0, 0.0));
 		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
 		transform = glm::rotate(transform, 0.7f * time, glm::vec3(0.0, 1.0, 0.0));
 		transform = glm::rotate(transform, 0.3f * time, glm::vec3(1.0, 0.0, 0.0));
 		camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
-		projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 10.0f);
+		projection = glm::perspective(45.0f, (float)width/height, 0.1f, 10.0f);
 
 		// Lighting
-		rimLight = glm::vec3(0.1f, 0.1f, 0.1f);
+		rimLight = glm::vec3(0.3f, 0.3f, 0.3f);
 		ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
 		directionalLightColor = glm::vec3(0.3f, 0.3f, 0.3f);
 		directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));

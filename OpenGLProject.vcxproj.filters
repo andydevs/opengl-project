@@ -74,4 +74,9 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Object Include="cube.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+  </ItemGroup>
 </Project>
