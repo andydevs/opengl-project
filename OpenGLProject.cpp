@@ -18,7 +18,9 @@
 #include "Texture.h"
 #include "Debug.h"
 
-// Window
+// Window and window dimensions
+const unsigned width = 1280;
+const unsigned height = 720;
 GLFWwindow* window;
 
 // Resources
@@ -37,7 +39,16 @@ glm::vec3 rimLight;
 glm::vec3 directionalLightColor;
 glm::vec3 directionalLightVector;
 
-void setupOpenGL(unsigned width, unsigned height, const char* title)
+/// <summary>
+/// Sets up a window and an OpenGL context
+/// </summary>
+/// 
+/// <param name="width">Width of the window</param>
+/// <param name="height">Height of the window</param>
+/// <param name="title">Window title (that appears on the top left)</param>
+/// 
+/// <returns>GLFW window instance</returns>
+GLFWwindow* setupOpenGL(unsigned width, unsigned height, const char* title)
 {
 	// Initialize GLFW
 	// Exit if didn't work
@@ -56,7 +67,7 @@ void setupOpenGL(unsigned width, unsigned height, const char* title)
 
 	// Create window
 	// Again, exit if didn't work
-	window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 	if (!window)
 	{
 		std::cout 
@@ -88,16 +99,20 @@ void setupOpenGL(unsigned width, unsigned height, const char* title)
 
 	// Set swap speed
 	glfwSwapInterval(1);
+
+	// Return final window
+	return window;
 }
 
+/// <summary>
+/// Main function
+/// </summary>
+/// 
+/// <returns>Status code upon completion</returns>
 int main() 
 {
-	// Height and width
-	int width = 1280;
-	int height = 720;
-
 	// Setup opengl
-	setupOpenGL(width, height, "OpenGL Project");
+	window = setupOpenGL(width, height, "OpenGL Project");
 
 	// Compile and link shader program
 	vertexShader = new Shader(GL_VERTEX_SHADER, "shader.vert");
@@ -134,8 +149,8 @@ int main()
 	GL_SAFE_CALL(glEnableVertexAttribArray(2));
 
 	// Set up the whole loop thing
-	float dtime = 1.0f / 60.0f;
 	float time = 0.0f;
+	float dtime = 1.0f / 60.0f;
 	camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	projection = glm::perspective(45.0f, (float)width / height, 0.1f, 10.0f);
 	while (!glfwWindowShouldClose(window))
