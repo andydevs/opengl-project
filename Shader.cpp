@@ -6,6 +6,11 @@
 #include <vector>
 #include "Debug.h"
 
+/// <summary>
+/// Construct shader from file
+/// </summary>
+/// <param name="shaderType">Type of shader being created</param>
+/// <param name="shaderFilename">Filename to read code from</param>
 Shader::Shader(GLenum shaderType, const char* shaderFilename)
 	: GLObject(),
 	m_shaderType(shaderType),
@@ -24,6 +29,9 @@ Shader::Shader(GLenum shaderType, const char* shaderFilename)
 	m_shaderSource = _strdup(sourceBuff.str().c_str());
 }
 
+/// <summary>
+/// Delete shader on GPU if exists
+/// </summary>
 Shader::~Shader()
 {
 	if (m_handle) {
@@ -33,6 +41,9 @@ Shader::~Shader()
 	delete m_shaderFilename;
 }
 
+/// <summary>
+/// Compile shader
+/// </summary>
 void Shader::compile()
 {
 	// Parameters n soch

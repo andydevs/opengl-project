@@ -7,11 +7,17 @@
 #include <vector>
 #include "Debug.h"
 
+/// <summary>
+/// Construct Shader Program
+/// </summary>
 ShaderProgram::ShaderProgram():
 	GLObject(),
 	m_vertexShader(nullptr),
 	m_fragmentShader(nullptr) {}
 
+/// <summary>
+/// Destruct Shader Program
+/// </summary>
 ShaderProgram::~ShaderProgram()
 {
 	// Delete handle if exist
@@ -20,16 +26,29 @@ ShaderProgram::~ShaderProgram()
 	}
 }
 
+/// <summary>
+/// Set vertex shader
+/// </summary>
+/// 
+/// <param name="vs">Compiled vertex shader object</param>
 void ShaderProgram::vertexShader(Shader* vs)
 {
 	m_vertexShader = vs;
 }
 
+/// <summary>
+/// Set fragment shader
+/// </summary>
+/// 
+/// <param name="fs">Compiled fragment shader object</param>
 void ShaderProgram::fragmentShader(Shader* fs)
 {
 	m_fragmentShader = fs;
 }
 
+/// <summary>
+/// Link whole shader
+/// </summary>
 void ShaderProgram::link()
 {
 	if (m_vertexShader && m_fragmentShader)
@@ -63,11 +82,21 @@ void ShaderProgram::link()
 	}
 }
 
+/// <summary>
+/// Bind shader to GL context
+/// </summary>
 void ShaderProgram::bind()
 {
 	GL_SAFE_CALL(glUseProgram(m_handle));
 }
 
+/// <summary>
+/// Get uniform handle for given name
+/// </summary>
+/// 
+/// <param name="name">Name of handle</param>
+/// 
+/// <returns>Return uniform handle</returns>
 GLuint ShaderProgram::uniformHandle(const char* name)
 {
 	GLuint uniformHandle;
@@ -75,6 +104,12 @@ GLuint ShaderProgram::uniformHandle(const char* name)
 	return uniformHandle;
 }
 
+/// <summary>
+/// Set matrix uniform for given name
+/// </summary>
+/// 
+/// <param name="name">name of uniform</param>
+/// <param name="matrix">matrix value</param>
 void ShaderProgram::setUniformMatrix4fv(const char* name, glm::mat4 matrix)
 {
 	GLuint uniformHandle;
@@ -82,6 +117,12 @@ void ShaderProgram::setUniformMatrix4fv(const char* name, glm::mat4 matrix)
 	GL_SAFE_CALL(glUniformMatrix4fv(uniformHandle, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 
+/// <summary>
+/// Set vector uniform for the given name
+/// </summary>
+/// 
+/// <param name="name">name of uniform</param>
+/// <param name="vector">vector value</param>
 void ShaderProgram::setUniform3fv(const char* name, glm::vec3 vector)
 {
 	GLuint uniformHandle;
