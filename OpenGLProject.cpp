@@ -18,27 +18,6 @@
 #include "Texture.h"
 #include "Debug.h"
 
-// Window and window dimensions
-const unsigned width = 1280;
-const unsigned height = 720;
-GLFWwindow* window;
-
-// Resources
-Shader* vertexShader;
-Shader* fragmentShader;
-ShaderProgram* shaderProgram;
-Texture* texture;
-Mesh* mesh;
-
-// Transform and projection matrices
-glm::mat4 transform;
-glm::mat4 camera;
-glm::mat4 projection;
-glm::vec3 ambientLight;
-glm::vec3 rimLight;
-glm::vec3 directionalLightColor;
-glm::vec3 directionalLightVector;
-
 /// <summary>
 /// Sets up a window and an OpenGL context
 /// </summary>
@@ -112,24 +91,26 @@ GLFWwindow* setupOpenGL(unsigned width, unsigned height, const char* title)
 int main() 
 {
 	// Setup opengl
-	window = setupOpenGL(width, height, "OpenGL Project");
+	const unsigned width = 1280;
+	const unsigned height = 720;
+	GLFWwindow* window = setupOpenGL(width, height, "OpenGL Project");
 
 	// Compile and link shader program
-	vertexShader = new Shader(GL_VERTEX_SHADER, "shader.vert");
+	Shader* vertexShader = new Shader(GL_VERTEX_SHADER, "shader.vert");
 	vertexShader->compile();
-	fragmentShader = new Shader(GL_FRAGMENT_SHADER, "shader.frag");
+	Shader* fragmentShader = new Shader(GL_FRAGMENT_SHADER, "shader.frag");
 	fragmentShader->compile();
-	shaderProgram = new ShaderProgram();
+	ShaderProgram* shaderProgram = new ShaderProgram();
 	shaderProgram->vertexShader(vertexShader);
 	shaderProgram->fragmentShader(fragmentShader);
 	shaderProgram->link();
 
 	// Load texture
-	texture = new Texture("brick-texture.jpg");
+	Texture* texture = new Texture("brick-texture.jpg");
 	std::cout << "Loaded texture" << std::endl;
 
 	// Read mesh object
-	mesh = Mesh::readObj("cube.obj");
+	Mesh* mesh = Mesh::readObj("cube.obj");
 	if (!mesh)
 	{
 		std::cout << "Something went wrong reading mesh" << std::endl;
@@ -148,19 +129,22 @@ int main()
 	GL_SAFE_CALL(glEnableVertexAttribArray(1));
 	GL_SAFE_CALL(glEnableVertexAttribArray(2));
 
+	// Transform
+	glm::mat4 transform;
+
 	// Camera
-	camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
-	projection = glm::perspective(45.0f, (float)width / height, 0.1f, 10.0f);
+	const glm::mat4 camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
+	const glm::mat4 projection = glm::perspective(45.0f, (float)width / height, 0.1f, 10.0f);
 
 	// Lighting
-	rimLight = glm::vec3(0.3f, 0.3f, 0.3f);
-	ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
-	directionalLightColor = glm::vec3(0.3f, 0.3f, 0.3f);
-	directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
+	const glm::vec3 rimLight = glm::vec3(0.3f, 0.3f, 0.3f);
+	const glm::vec3 ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
+	const glm::vec3 directionalLightColor = glm::vec3(0.3f, 0.3f, 0.3f);
+	const glm::vec3 directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
 
 	// Time and time step
+	const float dtime = 1.0f / 60.0f;
 	float time = 0.0f;
-	float dtime = 1.0f / 60.0f;
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
