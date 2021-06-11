@@ -8,6 +8,32 @@
 
 #define LINE_WIDTH 2048
 
+// .obj line matcher
+const std::regex vertex("v\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)(?:\\s+([\\+\\-]?\\d+\\.\\d+))?\\s*");
+const std::regex texcoord("vt\\s+([\\+\\-]?\\d+\\.\\d+)(?:\\s+([\\+\\-]?\\d+\\.\\d+))?(?:\\s+([\\+\\-]?\\d+\\.\\d+))?\\s*");
+const std::regex normal("vn\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s*");
+const std::regex face("f\\s+(\\d+)/\\1/\\1\\s+(\\d+)/\\2/\\2\\s+(\\d+)/\\3/\\3\\s*");
+
+void applyToBuffer(std::cmatch& result, std::vector<float>& buffer, unsigned* width)
+{
+	// Compute length of match result (in float values)
+	unsigned length = 0;
+	for (size_t i = 1; i < result.size(); i++)
+	{
+		if (result[i].length() > 0)
+		{
+			buffer.push_back(std::stof(result[i]));
+			++length;
+		}
+	}
+
+	// Update width
+	if (length > *width)
+	{
+		*width = length;
+	}
+}
+
 Mesh* Mesh::readObj(const char* filename) 
 {
 	// Widths of each set
@@ -21,30 +47,12 @@ Mesh* Mesh::readObj(const char* filename)
 	std::vector<float> vertexNormals;
 	std::vector<unsigned> indices;
 
-	// Regexes
-	std::regex vertex;
-	std::regex texcoord;
-	std::regex normal;
-	std::regex face;
-	try
-	{
-		vertex   = "v\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)(?:\\s+([\\+\\-]?\\d+\\.\\d+))?\\s*";
-		texcoord = "vt\\s+([\\+\\-]?\\d+\\.\\d+)(?:\\s+([\\+\\-]?\\d+\\.\\d+))?(?:\\s+([\\+\\-]?\\d+\\.\\d+))?\\s*";
-		normal   = "vn\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s*";
-		face     = "f\\s+(\\d+)/\\1/\\1\\s+(\\d+)/\\2/\\2\\s+(\\d+)/\\3/\\3\\s*";
-	}
-	catch (std::regex_error& e)
-	{
-		std::cout << e.what() << std::endl;
-		return nullptr;
-	}
-
 	// File stream
+	std::cout << "Reading " << filename << "..." << std::endl;
 	std::ifstream objin(filename);
 	try 
 	{
 		// Go through file lines
-		unsigned length;
 		std::cmatch result;
 		char line[LINE_WIDTH];
 		while (objin.good()) 
@@ -55,67 +63,22 @@ Mesh* Mesh::readObj(const char* filename)
 			// Match vertex
 			if (std::regex_match(line, result, vertex)) 
 			{
-				// Count length and add vertex value
-				length = 0;
-				for (size_t i = 1; i < result.size(); i++)
-				{
-					if (result[i].length()) 
-					{
-						vertexPositions.push_back(std::stof(result[i]));
-						++length;
-					}
-				}
-
-				// Set vertex width if length is greater
-				if (length > vertexWidth)
-				{
-					vertexWidth = length;
-				}
+				applyToBuffer(result, vertexPositions, &vertexWidth);
 			}
 			// Match texcoord
 			else if (std::regex_match(line, result, texcoord))
 			{
-				// Count length and add vertex value
-				length = 0;
-				for (size_t i = 1; i < result.size(); i++)
-				{
-					if (result[i].length())
-					{
-						vertexTexcoords.push_back(std::stof(result[i]));
-						++length;
-					}
-				}
-
-				// Set vertex width if length is greater
-				if (length > texcoordWidth)
-				{
-					texcoordWidth = length;
-				}
+				applyToBuffer(result, vertexTexcoords, &texcoordWidth);
 			}
 			// Match normal
 			else if (std::regex_match(line, result, normal))
 			{
-				// Count length and add vertex value
-				length = 0;
-				for (size_t i = 1; i < result.size(); i++)
-				{
-					if (result[i].length())
-					{
-						vertexNormals.push_back(std::stof(result[i]));
-						++length;
-					}
-				}
-
-				// Set vertex width if length is greater
-				if (length > normalWidth)
-				{
-					normalWidth = length;
-				}
+				applyToBuffer(result, vertexNormals, &normalWidth);
 			}
 			// Match indices
 			else if (std::regex_match(line, result, face))
 			{
-				// Count length and add vertex value
+				// Apply all indices to indices buffer
 				for (size_t i = 1; i < result.size(); i++)
 				{
 					indices.push_back((unsigned)std::stoul(result[i]) - 1);
@@ -131,15 +94,16 @@ Mesh* Mesh::readObj(const char* filename)
 	}
 	objin.close();
 
-	// Get results
+	// Get resulting number of vertices, texcoords, normals, and triangles
 	unsigned vertices = vertexPositions.size() / vertexWidth;
 	unsigned texcoords = vertexTexcoords.size() / texcoordWidth;
 	unsigned normals = vertexNormals.size() / normalWidth;
 	unsigned triangles = indices.size() / VERT_PER_TRIANGLE;
 
-	// Check
+	// Check if there are equal numbers of positions, tex coords, and normals
 	if (vertices == texcoords && texcoords == normals && normals == vertices)
 	{
+		// Return mesh if passed
 		std::cout << "Valid .obj file!" << std::endl;
 		return new Mesh(vertices,
 			vertexWidth, vertexPositions.data(),
@@ -149,6 +113,7 @@ Mesh* Mesh::readObj(const char* filename)
 	}
 	else
 	{
+		// Print error if not
 		std::cout << "Inputs are not equal!" << std::endl;
 		return nullptr;
 	}
