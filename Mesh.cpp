@@ -163,20 +163,14 @@ Mesh::Mesh(
 	m_aPositionBuffer(new ArrayBuffer(numVertices, positionDim, position)),
 	m_aTexcoordBuffer(new ArrayBuffer(numVertices, texcoordDim, texcoord)),
 	m_aNormalBuffer(new ArrayBuffer(numVertices, normalDim, normal)),
-	m_numTriangles(numTriangles),
-	m_indices(new unsigned[numTriangles*VERT_PER_TRIANGLE])
-{
-	for (size_t i = 0; i < numTriangles*VERT_PER_TRIANGLE; i++) {
-		m_indices[i] = indices[i];
-	}
-}
+	m_triangleBuffer(new TriangleBuffer(numTriangles, indices)) {}
 
 Mesh::~Mesh()
 {
 	delete m_aPositionBuffer;
 	delete m_aTexcoordBuffer;
 	delete m_aNormalBuffer;
-	delete m_indices;
+	delete m_triangleBuffer;
 }
 
 void Mesh::draw()
@@ -184,7 +178,5 @@ void Mesh::draw()
 	m_aPositionBuffer->setToAttribute(0);
 	m_aTexcoordBuffer->setToAttribute(1);
 	m_aNormalBuffer->setToAttribute(2);
-	GL_SAFE_CALL(glDrawElements(GL_TRIANGLES, 
-		m_numTriangles * VERT_PER_TRIANGLE, 
-		GL_UNSIGNED_INT, m_indices));
+	m_triangleBuffer->draw();
 }

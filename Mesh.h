@@ -1,8 +1,6 @@
 #pragma once
 #include "ArrayBuffer.h"
-
-// Constants
-#define VERT_PER_TRIANGLE 3
+#include "TriangleBuffer.h"
 
 class Mesh
 {
@@ -10,6 +8,7 @@ private:
 	ArrayBuffer* m_aPositionBuffer;
 	ArrayBuffer* m_aTexcoordBuffer;
 	ArrayBuffer* m_aNormalBuffer;
+	TriangleBuffer* m_triangleBuffer;
 	unsigned m_numTriangles;
 	unsigned* m_indices;
 public:
