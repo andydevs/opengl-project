@@ -148,11 +148,21 @@ int main()
 	GL_SAFE_CALL(glEnableVertexAttribArray(1));
 	GL_SAFE_CALL(glEnableVertexAttribArray(2));
 
-	// Set up the whole loop thing
-	float time = 0.0f;
-	float dtime = 1.0f / 60.0f;
+	// Camera
 	camera = glm::lookAt(glm::vec3(0.0, 0.0, -6.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	projection = glm::perspective(45.0f, (float)width / height, 0.1f, 10.0f);
+
+	// Lighting
+	rimLight = glm::vec3(0.3f, 0.3f, 0.3f);
+	ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
+	directionalLightColor = glm::vec3(0.3f, 0.3f, 0.3f);
+	directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
+
+	// Time and time step
+	float time = 0.0f;
+	float dtime = 1.0f / 60.0f;
+
+	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Transform matrix
@@ -160,12 +170,6 @@ int main()
 		transform = glm::rotate(transform, time, glm::vec3(0.0, 0.0, 1.0));
 		transform = glm::rotate(transform, 0.7f * time, glm::vec3(0.0, 1.0, 0.0));
 		transform = glm::rotate(transform, 0.3f * time, glm::vec3(1.0, 0.0, 0.0));
-
-		// Lighting
-		rimLight = glm::vec3(0.3f, 0.3f, 0.3f);
-		ambientLight = glm::vec3(0.2f, 0.2f, 0.2f);
-		directionalLightColor = glm::vec3(0.3f, 0.3f, 0.3f);
-		directionalLightVector = glm::normalize(glm::vec3(0.85, 0.8, 0.75));
 		
 		// Initialize render step
 		GL_SAFE_CALL(glEnable(GL_DEPTH_TEST));
