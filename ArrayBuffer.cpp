@@ -1,3 +1,5 @@
+// ArrayBuffer.cpp: Implementation for ArrayBuffer object
+//
 #include "ArrayBuffer.h"
 #include "Debug.h"
 

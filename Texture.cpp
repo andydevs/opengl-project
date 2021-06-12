@@ -1,3 +1,5 @@
+// Texture.cpp: Implementation for Texture object
+//
 #include "Texture.h"
 #include "Debug.h"
 #include <GL/glew.h>

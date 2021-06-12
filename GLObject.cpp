@@ -1,3 +1,5 @@
+// GLObject.cpp: Implementation for GLObject object
+//
 #include "GLObject.h"
 
 /// <summary>

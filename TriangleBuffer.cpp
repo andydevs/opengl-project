@@ -1,3 +1,5 @@
+// TriangleBuffer.cpp: Implementation for TriangleBuffer object
+//
 #include "TriangleBuffer.h"
 #include "Debug.h"
 #include <GL/glew.h>

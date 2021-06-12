@@ -1,3 +1,5 @@
+// Shader.cpp: Implementation for Shader object
+//
 #include "Shader.h"
 #include <cstring>
 #include <iostream>

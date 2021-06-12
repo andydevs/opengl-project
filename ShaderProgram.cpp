@@ -1,3 +1,5 @@
+// ShaderProgram.cpp: Implementation for ShaderProgram object
+//
 #include "ShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <cstring>
