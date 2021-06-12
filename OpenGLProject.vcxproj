@@ -148,6 +148,7 @@
     <ClCompile Include="GLObject.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="OpenGLProject.cpp" />
+    <ClCompile Include="setupOpenGL.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="setupOpenGL.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Texture.h" />

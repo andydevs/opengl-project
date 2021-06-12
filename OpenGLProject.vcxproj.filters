@@ -39,6 +39,9 @@
     <ClCompile Include="TriangleBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="setupOpenGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TriangleBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="setupOpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
