@@ -1,3 +1,5 @@
+// ShaderProgram.h: Interface for ShaderProgram
+//
 #pragma once
 #include <GL/GLEW.h>
 #include <glm/glm.hpp>

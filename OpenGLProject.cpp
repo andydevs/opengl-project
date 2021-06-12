@@ -1,4 +1,4 @@
-// OpenGLProject.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// OpenGLProject.cpp : Contains the 'main' function. Program execution begins and ends there.
 //
 #include <iostream>
 #include <fstream>

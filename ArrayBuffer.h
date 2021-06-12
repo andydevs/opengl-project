@@ -1,3 +1,5 @@
+// ArrayBuffer.h: Interface for ArrayBuffer object
+//
 #pragma once
 #include "GLObject.h"
 

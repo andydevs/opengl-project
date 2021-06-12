@@ -1,3 +1,5 @@
+// Mesh.h: Interface for Mesh object
+//
 #pragma once
 #include "ArrayBuffer.h"
 #include "TriangleBuffer.h"

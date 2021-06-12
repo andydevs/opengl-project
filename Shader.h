@@ -1,3 +1,5 @@
+// Shader.h: Interface for Shader object
+//
 #pragma once
 #include "GLObject.h"
 #include <GL/glew.h>

@@ -1,3 +1,5 @@
+// TriangleBuffer.h: Interface for TriangleBuffer object
+//
 #pragma once
 #include "GLObject.h"
 

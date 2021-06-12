@@ -1,3 +1,5 @@
+// GLObject.h: Interface for GLObject
+//
 #pragma once
 #include <GL/glew.h>
 

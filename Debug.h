@@ -1,3 +1,5 @@
+// Debug.h: Debug and error handling macro(s)
+//
 #pragma once
 #include <GL/glew.h>
 #include <iostream>

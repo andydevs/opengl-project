@@ -1,3 +1,5 @@
+// Texture.h: Interface for Texture object
+// 
 #pragma once
 #include "GLObject.h"
 
