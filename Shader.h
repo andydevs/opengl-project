@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 
 /// <summary>
-/// An OpenGL Shader
+/// A loaded OpenGL shader read from a file.
 /// </summary>
 class Shader : public GLObject
 {

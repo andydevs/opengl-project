@@ -5,6 +5,11 @@
 #include <cstring>
 #include <iostream>
 
+/// <summary>
+/// Construct texture object
+/// </summary>
+/// 
+/// <param name="filename">Name of file to read from</param>
 Texture::Texture(const char* filename)
 	: GLObject(), 
 	m_filename(_strdup(filename)) 
@@ -19,11 +24,17 @@ Texture::Texture(const char* filename)
 	}
 }
 
+/// <summary>
+/// Destruct texture object
+/// </summary>
 Texture::~Texture()
 {
 	GL_SAFE_CALL(glDeleteTextures(1, &m_handle));
 }
 
+/// <summary>
+/// Set texture to render
+/// </summary>
 void Texture::setToRender()
 {
 	GL_SAFE_CALL(glActiveTexture(GL_TEXTURE0));
