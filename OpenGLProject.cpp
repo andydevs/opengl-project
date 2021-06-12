@@ -1,16 +1,11 @@
 // OpenGLProject.cpp : Contains the 'main' function. Program execution begins and ends there.
 //
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <cstring>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <soil.h>
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "Mesh.h"

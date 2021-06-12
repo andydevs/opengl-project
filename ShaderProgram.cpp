@@ -2,10 +2,9 @@
 //
 #include "ShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <GL/glew.h>
 #include <cstring>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <vector>
 #include "Debug.h"
 

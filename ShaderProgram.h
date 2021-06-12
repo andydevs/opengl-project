@@ -1,9 +1,8 @@
 // ShaderProgram.h: Interface for ShaderProgram
 //
 #pragma once
-#include <GL/GLEW.h>
-#include <glm/glm.hpp>
 #include "Shader.h"
+#include <glm/glm.hpp>
 
 /// <summary>
 /// Full shader program
