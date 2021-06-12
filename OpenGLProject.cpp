@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cstring>
 #include "setupOpenGL.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
@@ -19,17 +20,32 @@
 /// </summary>
 /// 
 /// <returns>Status code upon completion</returns>
-int main() 
+int main(int argc, const char** argv) 
 {
-	// Setup opengl
-	const unsigned width = 1280;
-	const unsigned height = 720;
-	GLFWwindow* window = setupOpenGL(width, height, "OpenGL Project");
+	// Ensure we get 6 args
+	if (argc < 7) {
+		std::cout << "ERROR: program requires 6 arguments!" << std::endl;
+		std::cout << "> OpenGLProject [width] [height] [vertex shader] [fragment shader] [texture] [mesh]" << std::endl;
+		__debugbreak();
+		return EXIT_FAILURE;
+	}
+
+	// Get arguments
+	const unsigned width = atoi(argv[1]);
+	const unsigned height = atoi(argv[2]);
+	const char* vertexShaderFilename = argv[3];
+	const char* fragmentShaderFilename = argv[4];
+	const char* textureFilename = argv[5];
+	const char* meshFilename = argv[6];
+	const char* windowName = "OpenGL Project";
+
+	// Setup opengl window
+	GLFWwindow* window = setupOpenGL(width, height, windowName);
 
 	// Compile and link shader program
-	Shader* vertexShader = new Shader(GL_VERTEX_SHADER, "shader.vert");
+	Shader* vertexShader = new Shader(GL_VERTEX_SHADER, vertexShaderFilename);
 	vertexShader->compile();
-	Shader* fragmentShader = new Shader(GL_FRAGMENT_SHADER, "shader.frag");
+	Shader* fragmentShader = new Shader(GL_FRAGMENT_SHADER, fragmentShaderFilename);
 	fragmentShader->compile();
 	ShaderProgram* shaderProgram = new ShaderProgram();
 	shaderProgram->vertexShader(vertexShader);
@@ -37,11 +53,11 @@ int main()
 	shaderProgram->link();
 
 	// Load texture
-	Texture* texture = new Texture("brick-texture.jpg");
+	Texture* texture = new Texture(textureFilename);
 	std::cout << "Loaded texture" << std::endl;
 
 	// Read mesh object
-	Mesh* mesh = Mesh::readObj("cube.obj");
+	Mesh* mesh = Mesh::readObj(meshFilename);
 	if (!mesh)
 	{
 		std::cout << "Something went wrong reading mesh" << std::endl;
