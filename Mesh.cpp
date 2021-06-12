@@ -6,19 +6,30 @@
 #include <regex>
 #include <string>
 
-#define LINE_WIDTH 2048
+// Maximum line width when reading .obj
+const unsigned LINE_WIDTH = 2048;
 
-// .obj line matcher
+// .obj line matchers
 const std::regex vertex("v\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)(?:\\s+([\\+\\-]?\\d+\\.\\d+))?\\s*");
 const std::regex texcoord("vt\\s+([\\+\\-]?\\d+\\.\\d+)(?:\\s+([\\+\\-]?\\d+\\.\\d+))?(?:\\s+([\\+\\-]?\\d+\\.\\d+))?\\s*");
 const std::regex normal("vn\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s+([\\+\\-]?\\d+\\.\\d+)\\s*");
 const std::regex face("f\\s+(\\d+)/\\1/\\1\\s+(\\d+)/\\2/\\2\\s+(\\d+)/\\3/\\3\\s*");
 
-void applyToBuffer(std::cmatch& result, std::vector<float>& buffer, unsigned* width)
+/// <summary>
+/// Apply data from the matched .obj expression for the given type 
+/// to the given buffer. This will also update the stride of the 
+/// buffer to the maximum dimension of the received .obj expression 
+/// of this type
+/// </summary>
+/// 
+/// <param name="result">Match result generated containing data</param>
+/// <param name="buffer">Buffer containing data for this type</param>
+/// <param name="stride">Holds the final stride of the data</param>
+void applyToBuffer(std::cmatch& result, std::vector<float>& buffer, unsigned* stride)
 {
 	// Compute length of match result (in float values)
 	unsigned length = 0;
-	for (size_t i = 1; i < result.size(); i++)
+	for (size_t i = 1; i < result.size(); ++i)
 	{
 		if (result[i].length() > 0)
 		{
@@ -28,18 +39,39 @@ void applyToBuffer(std::cmatch& result, std::vector<float>& buffer, unsigned* wi
 	}
 
 	// Update width
-	if (length > *width)
+	if (length > *stride)
 	{
-		*width = length;
+		*stride = length;
 	}
 }
 
+/// <summary>
+/// Apply index data from the matchecd .obj face experession to the given buffer.
+/// </summary>
+/// 
+/// <param name="result">Match result generated containing data</param>
+/// <param name="indexBuffer">Buffer containing index data</param>
+void applyToIndexBuffer(std::cmatch& result, std::vector<unsigned>& indexBuffer)
+{
+	for (size_t i = 1; i < result.size(); ++i)
+	{
+		indexBuffer.push_back((unsigned)std::stoul(result[i]) - 1);
+	}
+}
+
+/// <summary>
+/// Load .obj file as Mesh
+/// </summary>
+/// 
+/// <param name="filename">Name of file to parse</param>
+/// 
+/// <returns>Parsed mesh object (or nullptr)</returns>
 Mesh* Mesh::readObj(const char* filename) 
 {
 	// Widths of each set
-	unsigned vertexWidth = 0;
-	unsigned texcoordWidth = 0;
-	unsigned normalWidth = 0;
+	unsigned vertexStride = 0;
+	unsigned texcoordStride = 0;
+	unsigned normalStride = 0;
 
 	// Buffers
 	std::vector<float> vertexPositions;
@@ -63,26 +95,22 @@ Mesh* Mesh::readObj(const char* filename)
 			// Match vertex
 			if (std::regex_match(line, result, vertex)) 
 			{
-				applyToBuffer(result, vertexPositions, &vertexWidth);
+				applyToBuffer(result, vertexPositions, &vertexStride);
 			}
 			// Match texcoord
 			else if (std::regex_match(line, result, texcoord))
 			{
-				applyToBuffer(result, vertexTexcoords, &texcoordWidth);
+				applyToBuffer(result, vertexTexcoords, &texcoordStride);
 			}
 			// Match normal
 			else if (std::regex_match(line, result, normal))
 			{
-				applyToBuffer(result, vertexNormals, &normalWidth);
+				applyToBuffer(result, vertexNormals, &normalStride);
 			}
 			// Match indices
 			else if (std::regex_match(line, result, face))
 			{
-				// Apply all indices to indices buffer
-				for (size_t i = 1; i < result.size(); i++)
-				{
-					indices.push_back((unsigned)std::stoul(result[i]) - 1);
-				}
+				applyToIndexBuffer(result, indices);
 			}
 		}
 	}
@@ -95,9 +123,9 @@ Mesh* Mesh::readObj(const char* filename)
 	objin.close();
 
 	// Get resulting number of vertices, texcoords, normals, and triangles
-	unsigned vertices = vertexPositions.size() / vertexWidth;
-	unsigned texcoords = vertexTexcoords.size() / texcoordWidth;
-	unsigned normals = vertexNormals.size() / normalWidth;
+	unsigned vertices = vertexPositions.size() / vertexStride;
+	unsigned texcoords = vertexTexcoords.size() / texcoordStride;
+	unsigned normals = vertexNormals.size() / normalStride;
 	unsigned triangles = indices.size() / VERT_PER_TRIANGLE;
 
 	// Check if there are equal numbers of positions, tex coords, and normals
@@ -106,9 +134,9 @@ Mesh* Mesh::readObj(const char* filename)
 		// Return mesh if passed
 		std::cout << "Valid .obj file!" << std::endl;
 		return new Mesh(vertices,
-			vertexWidth, vertexPositions.data(),
-			texcoordWidth, vertexTexcoords.data(),
-			normalWidth, vertexNormals.data(),
+			vertexStride, vertexPositions.data(),
+			texcoordStride, vertexTexcoords.data(),
+			normalStride, vertexNormals.data(),
 			triangles, indices.data());
 	}
 	else
@@ -119,6 +147,19 @@ Mesh* Mesh::readObj(const char* filename)
 	}
 }
 
+/// <summary>
+/// Construct Mesh
+/// </summary>
+/// 
+/// <param name="numVertices">Number of mesh vertices</param>
+/// <param name="positionDim">Dimension of vertex positions</param>
+/// <param name="position">Vertex position buffer</param>
+/// <param name="texcoordDim">Dimension of vertex texture coordinates</param>
+/// <param name="texcoord">Vertex texcoord buffer</param>
+/// <param name="normalDim">Dimension of vertex normals</param>
+/// <param name="normal">Vertex normal buffer</param>
+/// <param name="numTriangles">Number of mesh triangles</param>
+/// <param name="indices">Mesh index buffer</param>
 Mesh::Mesh(
 	unsigned numVertices, 
 	unsigned positionDim, const float* position, 
@@ -130,6 +171,9 @@ Mesh::Mesh(
 	m_aNormalBuffer(new ArrayBuffer(numVertices, normalDim, normal)),
 	m_triangleBuffer(new TriangleBuffer(numTriangles, indices)) {}
 
+/// <summary>
+/// Destruct mesh
+/// </summary>
 Mesh::~Mesh()
 {
 	delete m_aPositionBuffer;
@@ -138,6 +182,9 @@ Mesh::~Mesh()
 	delete m_triangleBuffer;
 }
 
+/// <summary>
+/// Draw mesh
+/// </summary>
 void Mesh::draw()
 {
 	m_aPositionBuffer->setToAttribute(0);
