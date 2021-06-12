@@ -1,6 +1,8 @@
 OpenGL Project
 ==========================================================
 
+![Project Image](project-screenshot.png)
+
 Me working with OpenGL.
 
 Credit to [The Cherno][cherno] for help and inspiration
