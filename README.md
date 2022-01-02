@@ -12,7 +12,7 @@ Usage
 
 Requires Visual Studio 2019 and nuget to run. Clone the 
 project repo and open it in Visual Studio. Run the project
-using "Local Windows Debugger" to run the project.
+using "Local Windows Debugger"
 
 You can of course change the input arguments to the program
 using the Project Properties > Debugging Panel.
